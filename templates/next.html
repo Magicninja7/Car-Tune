@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<form action="/delete" method="POST">
+    <button class="submit">Clear</button>
+</form>
+    {% for song in results %}
+        <div class="song-info">
+            <h3>{{ song[0] }}</h3>
+        </div>
+    {% endfor %}
+{% endblock %}
