@@ -20,7 +20,7 @@
                             <input type="hidden" name="id" value="{{ song.videoId }}">
                             <input type="hidden" name="title" value="{{ song.title }}">
                             <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
-                            <button class="button" type="submit">Use</button>
+                            <button class="button" type="submit">Play</button>
                         </form>
                         <p class="duration">Duration: {{ song.duration }}</p>
                     </div>
@@ -56,6 +56,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 100%;
 
   }
 .container {

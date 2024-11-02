@@ -3,23 +3,28 @@
 {% block main %}
 <div>
     {% for song in results %}
-        <div class="song-item">
-            <h3>{{ song['title'] }}</h3>
-            <form action="/" method="POST" class="play-button-form">
-                <input type="hidden" name="id_next" value="{{ song['videoid'] }}">
-                <input type="hidden" name="title_next" value="{{ song['title'] }}">
-                <button class="button" type="submit">Play</button>
-            </form>
+        <div class="song-item" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="song-info" style="border: 1px solid black; padding: 10px; display: flex; align-items: center;">
+                <h3 style="margin-right: 10px;">{{ song['title'] }}</h3>
+                <form action="/" method="POST" class="play-button-form">
+                    <input type="hidden" name="id_next" value="{{ song['videoid'] }}">
+                    <input type="hidden" name="title_next" value="{{ song['title'] }}">
+                    <button class="button" type="submit">Play</button>
+                </form>
+            </div>
+            <img src="{{ song['thumbnail'] }}" alt="Album Cover" style="border: 1px solid black; width: 100px; height: 100px;">
         </div>
         {% if not loop.last %}
             <hr class="separator">
         {% endif %}
     {% endfor %}
     <form action="/delete" method="POST">
-        <button class="buttton" type="submit">
+        <button class="button" type="submit">
             <span>Clear</span>
             <span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-miterlimit="2" stroke-linejoin="round" fill-rule="evenodd" clip-rule="evenodd"><path fill-rule="nonzero" d="m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm0 1.5c-4.69 0-8.497 3.807-8.497 8.497s3.807 8.498 8.497 8.498 8.498-3.808 8.498-8.498-3.808-8.497-8.498-8.497zm0 7.425 2.717-2.718c.146-.146.339-.219.531-.219.404 0 .75.325.75.75 0 .193-.073.384-.219.531l-2.717 2.717 2.727 2.728c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.384-.073-.53-.219l-2.729-2.728-2.728 2.728c-.146.146-.338.219-.53.219-.401 0-.751-.323-.751-.75 0-.192.073-.384.22-.531l2.728-2.728-2.722-2.722c-.146-.147-.219-.338-.219-.531 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-miterlimit="2" stroke-linejoin="round" fill-rule="evenodd" clip-rule="evenodd">
+                    <path fill-rule="nonzero" d="m12.002 2.005c5.518 0 9.998 4.48 9.998 9.997 0 5.518-4.48 9.998-9.998 9.998-5.517 0-9.997-4.48-9.997-9.998 0-5.517 4.48-9.997 9.997-9.997zm0 1.5c-4.69 0-8.497 3.807-8.497 8.497s3.807 8.498 8.497 8.498 8.498-3.808 8.498-8.498-3.808-8.497-8.498-8.497zm0 7.425 2.717-2.718c.146-.146.339-.219.531-.219.404 0 .75.325.75.75 0 .193-.073.384-.219.531l-2.717 2.717 2.727 2.728c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.384-.073-.53-.219l-2.729-2.728-2.728 2.728c-.146.146-.338.219-.53.219-.401 0-.751-.323-.751-.75 0-.192.073-.384.22-.531l2.728-2.728-2.722-2.722c-.146-.147-.219-.338-.219-.531 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"></path>
+                </svg>
             </span>
         </button>
     </form>
@@ -44,8 +49,8 @@
  text-transform: uppercase;
  color: var(--color);
  z-index: 1;
- margin-left: 10px; /* Add some space between title and button */
- flex-shrink: 0; /* Prevent button from resizing */
+ margin-left: 10px;
+ flex-shrink: 0;
 }
 
 .button::before, .button::after {
@@ -88,12 +93,37 @@
 
 .song-item {
     display: flex;
-    align-items: center; /* Align items vertically in the center */
-    justify-content: flex-start; /* Align items to the left */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.song-info {
+    border: 1px solid black;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.song-info h3 {
+    margin-right: 10px;
+    border: 1px solid black;
+    padding: 5px;
 }
 
 .play-button-form {
-    margin-left: 10px; /* Add some space between title and button */
+    border: 1px solid black;
+    padding: 5px 10px;
+}
+
+.album-cover {
+    border: 1px solid black;
+    width: 100px;
+    height: 100px;
+}
+
+.separator {
+    margin: 10px 0;
 }
 
 

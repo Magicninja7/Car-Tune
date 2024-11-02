@@ -119,28 +119,10 @@ def hihihiha():
 
 
 
-
-
-
-
-
-
-
-
 @app.route('/libraries', methods=["GET"])
 def libraries():
-    albums = ytmusic.get_library_albums()
+    albums = ytmusic.get_library_albums(limit=24)
     return render_template('libraries.html', albums=albums)
-
-
-
-
-
-
-
-
-
-
 
 
 
