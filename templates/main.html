@@ -2,21 +2,139 @@
 
 {% block main %}
     {% if streaming_url %}
-        <div class="now-playing">           
+        <div class="audio-player">
             {% if thumbnail %}
-                <img src="{{ thumbnail }}" alt="{{ title }}">
+                <img src="{{ thumbnail }}" alt="{{ title }}" class="thumbnail">
             {% endif %}
             
             {% if title %}
-                <h3>{{ title }}</h3>
+                <h3 class="title">{{ title }}</h3>
             {% endif %}
             
-            <audio controls>
-                <source src="{{ streaming_url }}" type="audio/mp3">
-                Your browser does not support the audio tag.
-            </audio>
+            <div class="controls">
+                <button id="skip-backward">⏮️</button>
+                <button id="play-pause">▶️</button>
+                <button id="skip-forward">⏭️</button>
+            </div>
+            
+            <div class="progress-container">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress-bar" value="0" min="0">
+                <span id="duration">0:00</span>
+            </div>
+            
+            <audio id="audio" src="{{ streaming_url }}"></audio>
         </div>
     {% else %}
         <p>Choose a song in search</p>
     {% endif %}
+
+
+
+
+<style>
+    
+/* styles.css */
+.audio-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.thumbnail {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.controls {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.controls button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+#progress-bar {
+    flex: 1;
+    margin: 0 10px;
+}
+
+#current-time,
+#duration {
+    font-size: 14px;
+    width: 40px;
+    text-align: center;
+}
+</style>
+
+<script>
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('play-pause');
+    const skipForwardBtn = document.getElementById('skip-forward');
+    const skipBackwardBtn = document.getElementById('skip-backward');
+    const progressBar = document.getElementById('progress-bar');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+
+    playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            playPauseBtn.textContent = '⏸️';
+        } else {
+            audio.pause();
+            playPauseBtn.textContent = '▶️';
+        }
+    });
+
+    skipForwardBtn.addEventListener('click', () => {
+        audio.currentTime += 15;
+    });
+    skipBackwardBtn.addEventListener('click', () => {
+        audio.currentTime -= 15;
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        progressBar.value = audio.currentTime;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+        progressBar.max = audio.duration;
+        durationEl.textContent = formatTime(audio.duration);
+    });
+
+    progressBar.addEventListener('input', () => {
+        audio.currentTime = progressBar.value;
+    });
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+</script>
+
+
+
 {% endblock %}
