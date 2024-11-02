@@ -1,38 +1,365 @@
 {% extends "layout.html" %}
 
 {% block main %}
-    <form action="{{ url_for('search') }}" method="post">
-        <input type="text" name="query" placeholder="Search for songs...">
-        <button type="submit">Search</button>
+    <form action="/search" method="post" class="centerr">
+        <input placeholder="Search for songs..." class="iinput" name="query" type="text">
+        <button type="submit" class="buttonpro">
+            <span>Search</span>
+        </button>
     </form>
 
     {% if results %}
-        {% for song in results %}
-            <div class="song-item">
-                {% if song.thumbnails and song.thumbnails[0].url %}
-                    <img src="{{ song.thumbnails[0].url }}" alt="{{ song.title }}">
-                {% endif %}
+        <div class="songs-container">
+            {% for song in results %}
+                <div class="song-item">
+                    {% if song.thumbnails and song.thumbnails|length > 0 and song.thumbnails[0].url is not none %}
+                      <img src="{{ song.thumbnails[0].url if song.thumbnails else 'default_thumbnail.jpg' }}" alt="{{ song.title }}" class="thumbnail">
+                    {% endif %}
 
-                <div class="song-info">
-                    <h3>{{ song.title }}</h3>
-                    <p>Duration: {{ song.duration }}</p>
+                    <div class="song-info">
+                        <h3 class="title">{{ song.title }}</h3>
+                        <h4 class="coloor">{{ song['artists'][0]['name'] }}</h4>
+                        <form action="/" method="post">
+                            <input type="hidden" name="id" value="{{ song.videoId }}">
+                            <input type="hidden" name="title" value="{{ song.title }}">
+                            <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
+                            <button class="button" type="submit">Use</button>
+                        </form>
+                        <p class="duration">Duration: {{ song.duration }}</p>
+                    </div>
                 </div>
-
-                <form action="/main" method="post">
-                    <input type="hidden" name="id" value="{{ song.videoId }}">
-                    <input type="hidden" name="title" value="{{ song.title }}">
-                    <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
-                    <button type="submit">Use</button>
-                </form>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <script>
+            window.onload = function() {
+                if (window.innerWidth > 768) {
+                    window.scrollBy(0, 560);
+                } else {
+                    window.scrollBy(0, 200);
+                }
+            }
+        </script>
     {% endif %}
 
 
 
 
+
+
+
+
+
 <style>
-    
+  .coloor {
+    margin-top: 1rem;
+    margin-bottom: 5;
+    font-size: 1rem;
+    color: black;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+  }
+.container {
+            display: flex;
+            align-items: center;
+        }
+        
+.songs-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.song-item {
+    border: 2px solid black;
+    padding: 10px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+    box-sizing: border-box;
+}
+
+.thumbnail {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border: 1px solid #000;
+    max-width: 100%;
+    height: auto;
+    image-rendering: auto;
+}
+
+.song-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.2rem; /* Adjust as needed */
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.duration {
+    margin: 5px 0;
+}
+
+
+/* From Uiverse.io by nikk7007 */ 
+.button {
+ --color: #00A97F;
+ padding: 0.8em 1.7em;
+ background-color: transparent;
+ border-radius: .3em;
+ position: relative;
+ overflow: hidden;
+ cursor: pointer;
+ transition: .5s;
+ font-weight: 400;
+ font-size: 17px;
+ border: 1px solid;
+ font-family: inherit;
+ text-transform: uppercase;
+ color: var(--color);
+ z-index: 1;
+ margin-left: 10px; /* Add some space between title and button */
+ flex-shrink: 0; /* Prevent button from resizing */
+}
+
+.button::before, .button::after {
+ content: '';
+ display: block;
+ width: 50px;
+ height: 50px;
+ transform: translate(-50%, -50%);
+ position: absolute;
+ border-radius: 50%;
+ z-index: -1;
+ background-color: var(--color);
+ transition: 1s ease;
+}
+
+.button::before {
+ top: -1em;
+ left: -1em;
+}
+
+.button::after {
+ left: calc(100% + 1em);
+ top: calc(100% + 1em);
+}
+
+.button:hover::before, .button:hover::after {
+ height: 410px;
+ width: 410px;
+}
+
+.button:hover {
+ color: rgb(10, 25, 30);
+}
+
+.button:active {
+ filter: brightness(.8);
+}
+
+/* From Uiverse.io by garerim */ 
+.iinput {
+  margin: 30px;
+  background: none;
+  border: none;
+  outline: none;
+  max-width: 190px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 9999px;
+  box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+  color: #fff;
+}
+
+/* From Uiverse.io by KapeParaguay */ 
+.buttonpro {
+  --btn-default-bg: black;
+  --btn-padding: 15px 20px;
+  --btn-hover-bg: #830d0d;
+  --btn-transition: 0.3s;
+  --btn-letter-spacing: 0.1rem;
+  --btn-animation-duration: 1.2s;
+  --btn-shadow-color: #000000;
+  --btn-shadow: 0 2px 10px 0 var(--btn-shadow-color);
+  --hover-btn-color: #830d0d;
+  --default-btn-color: #fff;
+  --font-size: 16px;
+  --font-weight: 600;
+  --font-family: Menlo, Roboto Mono, monospace;
+  border-radius: 6em;
+}
+
+/* button settings 👆 */
+
+.buttonpro {
+  box-sizing: border-box;
+  padding: var(--btn-padding);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--default-btn-color);
+  font: var(--font-weight) var(--font-size) var(--font-family);
+  background: var(--btn-default-bg);
+  cursor: pointer;
+  transition: var(--btn-transition);
+  overflow: hidden;
+  box-shadow: var(--btn-shadow);
+  border-radius: 6em;
+  border: 2px solid #2a2b3a;
+}
+
+.buttonpro span {
+  letter-spacing: var(--btn-letter-spacing);
+  transition: var(--btn-transition);
+  box-sizing: border-box;
+  position: relative;
+  background: inherit;
+}
+
+.buttonpro span::before {
+  box-sizing: border-box;
+  position: absolute;
+  content: "";
+  background: inherit;
+}
+.buttonpro:focus {
+  scale: 1.09;
+}
+.buttonpro:hover,
+.buttonpro:focus {
+  background: var(--btn-default-bg);
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.7);
+  border: 2px solid #830d0d;
+}
+
+.buttonpro:hover span,
+.buttonpro:focus span {
+  color: #830d0d;
+}
+
+.buttonpro:hover span::before,
+.buttonpro:focus span::before {
+  animation: chitchat linear both var(--btn-animation-duration);
+}
+
+@keyframes chitchat {
+  0% {
+    content: "#";
+  }
+
+  5% {
+    content: ".";
+  }
+
+  10% {
+    content: "^{";
+  }
+
+  15% {
+    content: "-!";
+  }
+
+  20% {
+    content: "#$_";
+  }
+
+  25% {
+    content: "№:0";
+  }
+
+  30% {
+    content: "#{+.";
+  }
+  35% {
+    content: "@}-?";
+  }
+
+  40% {
+    content: "?{4@%";
+  }
+
+  45% {
+    content: "=.,^!";
+  }
+
+  50% {
+    content: "?2@%";
+  }
+
+  55% {
+    content: ",;1}]";
+  }
+
+  60% {
+    content: "?.%:%";
+    right: 0;
+  }
+
+  65% {
+    content: "|{f[4";
+    right: 0;
+  }
+
+  70% {
+    content: "{4%0%";
+    right: 0;
+  }
+
+  75% {
+    content: "'1_0<";
+    right: 0;
+  }
+
+  80% {
+    content: "{0%";
+    right: 0;
+  }
+
+  85% {
+    content: "]>'";
+    right: 0;
+  }
+
+  90% {
+    content: "4";
+    right: 0;
+  }
+
+  95% {
+    content: "2";
+    right: 0;
+  }
+
+  100% {
+    content: "";
+    right: 0;
+  }
+}
+
+
+.centerr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 </style>
     
 

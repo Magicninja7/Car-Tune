@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block main %}
-    <h2>Albums</h2>
+    <h2 class="album-text">Albums</h2>
     <ul class="albums-list">
         {% for album in albums %}
             <li>
@@ -18,6 +18,11 @@
     </ul>
 
     <style>
+        .album-text {
+            text-align: center; /* Center the heading horizontally */
+            margin-top: 1%; /* Optional: Add some spacing below the heading */
+        }
+        
         .albums-list {
             list-style: none;
             display: grid;

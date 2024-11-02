@@ -14,21 +14,21 @@ def main():
         videoId = request.form.get('id')
         if not videoId:
             videoId = request.form.get('id_library')
-        elif not videoId:
+        if not videoId:
             videoId = request.form.get("id_next")
         title = request.form.get('title')
         if not title:
             title = request.form.get('title_library')
-        elif not title:
+        if not title:
             title = request.form.get('title_next')
         thumbnail = request.form.get('thumbnail')
         con = sqlite3.connect("songs.db")
         cursor = con.cursor()
 
-        cursor.execute('SELECT * FROM contacts WHERE videoid = ?', (videoId,))
+        cursor.execute('SELECT * FROM songs WHERE videoid = ?', (videoId,))
         if not cursor.fetchone():
             cursor.execute('''
-                INSERT INTO contacts (videoid, title)
+                INSERT INTO songs (videoid, title)
                 VALUES (?, ?)
             ''', (videoId, title))
         con.commit()
@@ -43,6 +43,14 @@ def play():
     videoId = request.args.get('videoId')
     title = request.args.get('title')
     thumbnail = request.args.get('thumbnail')
+    if not thumbnail:
+        video_details = ytmusic.get_song(videoId)["videoDetails"]
+        if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
+            thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
+        else:
+            microformat = ytmusic.get_song(videoId)["microformat"]["microformatDataRenderer"]
+            if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
+                thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
     streaming_url = get_streaming_url(videoId) if videoId else None
     return render_template('main.html', 
                            videoId=videoId, 
@@ -71,11 +79,12 @@ def search():
             results = ytmusic.search(query, filter="songs")
     return render_template('search.html', results=results)
 
-@app.route('/next', methods=['GET', 'POST'])
-def next():
+@app.route('/next', methods=['GET'])
+def next_song():
     con = sqlite3.connect("songs.db")
+    con.row_factory = sqlite3.Row
     cursor = con.cursor()
-    results = cursor.execute("SELECT title, videoid FROM contacts").fetchall()
+    results = cursor.execute("SELECT title, videoid FROM songs").fetchall()
     con.close()
     return render_template('next.html', results=results)
 
@@ -111,9 +120,6 @@ def hihihiha():
 @app.route('/libraries', methods=["GET"])
 def libraries():
     albums = ytmusic.get_library_albums()
-    # Debug print
-    if albums:
-        print("First album data:", albums[0].keys())
     return render_template('libraries.html', albums=albums)
 
 
@@ -133,7 +139,7 @@ def libraries():
 def delete():
     con = sqlite3.connect("songs.db")
     cursor = con.cursor()
-    cursor.execute("DELETE FROM contacts")
+    cursor.execute("DELETE FROM songs")
     con.commit()
     con.close()
     return render_template("next.html")
