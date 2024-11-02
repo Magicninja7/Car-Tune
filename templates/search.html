@@ -1,34 +1,3 @@
-<<<<<<< HEAD
-{% extends "layout.html" %}
-
-{% block main %}
-    <form action="{{ url_for('search') }}" method="post">
-        <input type="text" name="query" placeholder="Search for songs...">
-        <button type="submit">Search</button>
-    </form>
-
-    {% if results %}
-        {% for song in results %}
-            <div class="song-item">
-                {% if song.thumbnails and song.thumbnails[0].url %}
-                    <img src="{{ song.thumbnails[0].url }}" alt="{{ song.title }}">
-                {% endif %}
-
-                <div class="song-info">
-                    <h3>{{ song.title }}</h3>
-                    <p>Duration: {{ song.duration }}</p>
-                </div>
-
-                <form action="{{ url_for('main') }}" method="post">
-                    <input type="hidden" name="id" value="{{ song.videoId }}">
-                    <input type="hidden" name="title" value="{{ song.title }}">
-                    <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
-                    <button type="submit">Use</button>
-                </form>
-            </div>
-        {% endfor %}
-    {% endif %}
-=======
 {% extends "layout.html" %}
 
 {% block main %}
@@ -67,6 +36,4 @@
 </style>
     
 
-
->>>>>>> master
 {% endblock %}

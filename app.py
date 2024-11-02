@@ -97,6 +97,17 @@ def hihihiha():
     
     return render_template('songs_albums.html', songs=songs)
 
+
+
+
+
+
+
+
+
+
+
+
 @app.route('/libraries', methods=["GET"])
 def libraries():
     albums = ytmusic.get_library_albums()
@@ -104,6 +115,17 @@ def libraries():
     if albums:
         print("First album data:", albums[0].keys())
     return render_template('libraries.html', albums=albums)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
