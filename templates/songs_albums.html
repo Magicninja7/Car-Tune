@@ -14,8 +14,8 @@
                         <p>Duration: {{ song['duration'] }}</p>
                     {% endif %}
                     <form action="/" method="POST">
-                        <input type="hidden" name="id" value="{{ song['videoId'] }}">
-                        <input type="hidden" name="title" value="{{ song['title'] }}">
+                        <input type="hidden" name="id_library" value="{{ song['videoId'] }}">
+                        <input type="hidden" name="title_library" value="{{ song['title'] }}">
                         <button type="submit">Play</button>
                     </form>
                 </div>

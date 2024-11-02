@@ -1,8 +1,7 @@
 import sqlite3
 from ytmusicapi import YTMusic
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 import yt_dlp
-import json
 
 ytmusic = YTMusic("oauth.json")
 app = Flask(__name__)
@@ -13,21 +12,31 @@ app = Flask(__name__)
 def main():
     if request.method == 'POST':
         videoId = request.form.get('id')
+        if not videoId:
+            videoId = request.form.get('id_library')
+        elif not videoId:
+            videoId = request.form.get("id_next")
         title = request.form.get('title')
+        if not title:
+            title = request.form.get('title_library')
+        elif not title:
+            title = request.form.get('title_next')
         thumbnail = request.form.get('thumbnail')
         con = sqlite3.connect("songs.db")
         cursor = con.cursor()
 
-        cursor.execute('''
-            INSERT INTO contacts (videoid, title)
-            VALUES (?, ?)
-        ''', (videoId, title))
+        cursor.execute('SELECT * FROM contacts WHERE videoid = ?', (videoId,))
+        if not cursor.fetchone():
+            cursor.execute('''
+                INSERT INTO contacts (videoid, title)
+                VALUES (?, ?)
+            ''', (videoId, title))
         con.commit()
         con.close()
         
         return redirect(url_for('play', videoId=videoId, title=title, thumbnail=thumbnail))
     
-    return render_template('main.html')
+    return render_template('search.html')
 
 @app.route('/play/')
 def play():
@@ -66,7 +75,7 @@ def search():
 def next():
     con = sqlite3.connect("songs.db")
     cursor = con.cursor()
-    results = cursor.execute("SELECT title FROM contacts").fetchall()
+    results = cursor.execute("SELECT title, videoid FROM contacts").fetchall()
     con.close()
     return render_template('next.html', results=results)
 
@@ -77,22 +86,13 @@ def next():
 def hihihiha():
     songs = []
     if request.method == 'POST':
-        browse_id = request.form.get('hihihiha')
-        print(f"Received browse_id: {browse_id}")
-        
+        browse_id = request.form.get('hihihiha')       
         try:
-            print("Fetching album details...")
             album_details = ytmusic.get_album(browse_id)
-            print("Album details keys:", album_details.keys())
             
             if "tracks" in album_details:
                 songs = album_details["tracks"]
-                print(f"Found {len(songs)} songs in album")
-            else:
-                print("No tracks found in album details")
-                print("Available keys:", album_details.keys())
         except Exception as e:
-            print(f"Error fetching album: {e}")
             songs = []
     
     return render_template('songs_albums.html', songs=songs)
