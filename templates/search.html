@@ -10,12 +10,9 @@
 
     {% if results %}
         <div class="songs-container">
-            {% for song in results %}
+            {% for song, pic in zip(results, thumbnails) %}
                 <div class="song-item">
-                    {% if song.thumbnails and song.thumbnails|length > 0 and song.thumbnails[0].url is not none %}
-                      <img src="{{ song.thumbnails[0].url if song.thumbnails else 'default_thumbnail.jpg' }}" alt="{{ song.title }}" class="thumbnail">
-                    {% endif %}
-
+                  <img src="{{ pic }}" alt="{{ song.title }}" class="thumbnail">
                     <div class="song-info">
                         <h3 class="title">{{ song.title }}</h3>
                         <h4 class="coloor">{{ song['artists'][0]['name'] }}</h4>

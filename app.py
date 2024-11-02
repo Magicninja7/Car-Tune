@@ -42,15 +42,13 @@ def main():
 def play():
     videoId = request.args.get('videoId')
     title = request.args.get('title')
-    thumbnail = request.args.get('thumbnail')
-    if not thumbnail:
-        video_details = ytmusic.get_song(videoId)["videoDetails"]
-        if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
-            thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
-        else:
-            microformat = ytmusic.get_song(videoId)["microformat"]["microformatDataRenderer"]
-            if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
-                thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
+    video_details = ytmusic.get_song(videoId)["videoDetails"]
+    if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
+        thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
+    else:
+        microformat = ytmusic.get_song(videoId)["microformat"]["microformatDataRenderer"]
+        if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
+            thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
     streaming_url = get_streaming_url(videoId) if videoId else None
     return render_template('main.html', 
                            videoId=videoId, 
@@ -73,11 +71,23 @@ def get_streaming_url(video_id):
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     results = []
+    thumbnails = []
     if request.method == 'POST':
         query = request.form.get('query')
         if query:
             results = ytmusic.search(query, filter="songs")
-    return render_template('search.html', results=results)
+            for song in results:
+                videoId = song.get("videoId")
+                if videoId:
+                    video_details = ytmusic.get_song(videoId).get("videoDetails", {})
+                    thumbnail = video_details.get("thumbnail", {}).get("thumbnails", [])
+                    if thumbnail:
+                        thumbnails.append(thumbnail[-1]["url"])
+                    else:
+                        thumbnails.append('')
+                else:
+                    thumbnails.append('')
+    return render_template('search.html', results=results, thumbnails=thumbnails, zip=zip)
 
 @app.route('/next', methods=['GET'])
 def next_song():
