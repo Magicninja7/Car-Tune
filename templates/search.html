@@ -18,7 +18,7 @@
                     <p>Duration: {{ song.duration }}</p>
                 </div>
 
-                <form action="{{ url_for('main') }}" method="post">
+                <form action="/main" method="post">
                     <input type="hidden" name="id" value="{{ song.videoId }}">
                     <input type="hidden" name="title" value="{{ song.title }}">
                     <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
