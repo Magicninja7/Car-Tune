@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "layout.html" %}
 
 {% block main %}
@@ -10,3 +11,22 @@
         </div>
     {% endfor %}
 {% endblock %}
+=======
+{% extends "layout.html" %}
+
+{% block main %}
+<form action="/delete" method="POST">
+    <button class="submit">Clear</button>
+</form>
+    {% for song in results %}
+        <div class="song-info">
+            <h3>{{ song[0] }}</h3>
+        </div>
+        <form action="/" method="POST">
+            <input type="hidden" name="id_next" value="{{ song['videoid'] }}">
+            <input type="hidden" name="title_next" value="{{ song['title'] }}">
+            <button type="submit">Play</button>
+        </form>
+    {% endfor %}
+{% endblock %}
+>>>>>>> master

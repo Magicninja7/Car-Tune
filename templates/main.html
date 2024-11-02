@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "layout.html" %}
 
 {% block main %}
@@ -19,4 +20,27 @@
     {% else %}
         <p>Choose a song in search</p>
     {% endif %}
+=======
+{% extends "layout.html" %}
+
+{% block main %}
+    {% if streaming_url %}
+        <div class="now-playing">           
+            {% if thumbnail %}
+                <img src="{{ thumbnail }}" alt="{{ title }}">
+            {% endif %}
+            
+            {% if title %}
+                <h3>{{ title }}</h3>
+            {% endif %}
+            
+            <audio controls>
+                <source src="{{ streaming_url }}" type="audio/mp3">
+                Your browser does not support the audio tag.
+            </audio>
+        </div>
+    {% else %}
+        <p>Choose a song in search</p>
+    {% endif %}
+>>>>>>> master
 {% endblock %}
