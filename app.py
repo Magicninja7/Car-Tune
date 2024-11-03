@@ -1,6 +1,6 @@
 import sqlite3
 from ytmusicapi import YTMusic
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import yt_dlp
 
 ytmusic = YTMusic("oauth.json")
@@ -136,6 +136,8 @@ def delete():
     con.close()
     return render_template("next.html")
     
+
+
 
 
 if __name__ == '__main__':
