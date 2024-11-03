@@ -1,99 +1,26 @@
-Car Tune Project
-This project aims to create a portable music chooser and player, inspired by an old-school GPS look, designed to integrate seamlessly with YouTube Music. It combines hardware components such as a Raspberry Pi Zero, touchscreen, speaker, and tactile buttons, with a software interface built using HTML, CSS, JavaScript, Python, Flask, and Jinja2.
+Car Tune Software 🎶
+The Car Tune software is a custom music player built for the Raspberry Pi Zero, designed to give a retro, intuitive experience for listening to your favorite tracks. The software connects to YouTube Music, allowing you to easily browse, select, and play music with a touchscreen interface, emulating the feel of an old-school GPS device.
 
-Features
-Artist and Album Sorting: Browse music by artist and view songs in each album.
-Music Control: Play, pause, skip to the next, or go back to the previous song.
-Volume Control: Use the hardware volume dial to adjust playback volume.
-Portable and Interactive UI: The software interface is designed to mimic an old-school GPS for easy navigation on the 3.5" touchscreen.
-Responsive Touchscreen Support: Optimized for touchscreen interactions and tactile feedback from buttons.
-Software Overview
-The software is organized into the following key components:
+Overview:
+Car Tune’s interface is built with web technologies, designed to be responsive and user-friendly on a 3.5" LCD touchscreen. The software leverages the YouTube Music API to access your personal library, providing a straightforward way to navigate by artist and album. Playback controls, including play, pause, and skip, are built directly into the UI, creating a seamless in-car or portable listening experience.
 
-Frontend:
+Features:
+Integration with your YouTube Music library, allowing quick access to favorite songs, albums, and artists.
+Simple, touch-optimized controls for playing, pausing, and skipping songs.
+Organized music browsing with intuitive sorting by artist and album.
+Responsive design that adapts to a small LCD screen for a clean, retro interface.
+Installation and Setup
+To set up Car Tune, clone the repository, install the required dependencies, and configure it with your YouTube Music API credentials. The software is written in Python with a Flask backend, and the front-end interface uses HTML, CSS, and JavaScript templated with Jinja2. Once set up locally, the software can be transferred to your Raspberry Pi Zero for portable use.
 
-Built using HTML, CSS, and JavaScript.
-Styled with responsive design for optimal use on a small touchscreen display.
-Backend:
+Tech Stack:
+Car Tune is built with:
 
-Developed with Python and Flask, with data managed using a songs.db database file.
-Handles song organization, playback control, and API interactions.
-Database (songs.db):
-
-Stores song data, organized by artist and album for easy browsing.
-API Integration:
-
-Connects with the YouTube Music API to pull music data.
-Allows for dynamic song management based on the user's music library.
-Requirements
-Hardware: Raspberry Pi Zero, TFT 3.5" Touchscreen (320x480px), Speaker, Tact Switch, Rotary Encoder, Battery
-Software:
-Python 3.x
-Flask
-SQLite3
-Additional Python libraries:
-Flask
-Jinja2
-YouTube Music API wrapper (for integrating with YouTube Music)
-Installation
-Clone the Repository:
-
-bash
-Copy code
-git clone <repository-url>
-cd car-tune-project
-Install Python Dependencies:
-
-bash
-Copy code
-pip install -r requirements.txt
-Set up the Database:
-
-Ensure songs.db is in the project directory.
-Populate it with your song library or sync with YouTube Music.
-Configure API Access:
-
-Follow YouTube Music API documentation to set up an API key.
-Add the API key in your environment or configuration file.
-Run the Application:
-
-bash
-Copy code
-flask run
-Access the app on your local network using the touchscreen device's browser.
-Usage
-Browse Music:
-
-Select an artist to view their albums.
-Tap on an album to see available songs.
-Play Controls:
-
-Use the play, pause, next, and previous buttons to control playback.
-Volume Adjustment:
-
-Rotate the physical volume dial to adjust playback sound.
-Power On/Off:
-
-Use the tact switch to turn the device on or off safely.
-Project Structure
-plaintext
-Copy code
-car-tune-project/
-├── templates/                # HTML templates for Flask
-├── static/
-│   ├── css/                  # Stylesheets
-│   ├── js/                   # JavaScript files
-├── app.py                    # Main Flask application
-├── songs.db                  # SQLite database for song storage
-├── config.py                 # API configuration
-└── README.md
-Future Enhancements
-Offline Song Storage: Download and store songs for offline playback.
-Improved UI: Additional style refinements for better user experience.
-Enhanced Music Control: More options for shuffling and queuing songs.
+Python and Flask for the server-side logic
+HTML, CSS, and JavaScript for a responsive, touch-friendly UI
+YouTube Music API for accessing music data in real time
 Contributing
-Contributions are welcome! Please fork the repository, create a new branch, and submit a pull request with a detailed description of your changes.
+Contributions are welcome! If you’d like to help enhance Car Tune, feel free to fork the repository, make improvements, and open a pull request.
 
-License
-This project is open-source and available under the MIT License. See the LICENSE file for more details.
+License:
+Licensed under the MIT License.
 
