@@ -12,14 +12,13 @@
                     <button class="button" type="submit">Play</button>
                 </form>
             </div>
-            <img src="{{ song['thumbnail'] }}" alt="Album Cover" style="border: 1px solid black; width: 100px; height: 100px;">
         </div>
         {% if not loop.last %}
             <hr class="separator">
         {% endif %}
     {% endfor %}
     <form action="/delete" method="POST">
-        <button class="button" type="submit">
+        <button class="buttton" type="submit">
             <span>Clear</span>
             <span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-miterlimit="2" stroke-linejoin="round" fill-rule="evenodd" clip-rule="evenodd">
@@ -99,7 +98,6 @@
 }
 
 .song-info {
-    border: 1px solid black;
     padding: 10px;
     display: flex;
     align-items: center;
@@ -107,17 +105,14 @@
 
 .song-info h3 {
     margin-right: 10px;
-    border: 1px solid black;
     padding: 5px;
 }
 
 .play-button-form {
-    border: 1px solid black;
     padding: 5px 10px;
 }
 
 .album-cover {
-    border: 1px solid black;
     width: 100px;
     height: 100px;
 }
