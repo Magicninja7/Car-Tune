@@ -1,18 +1,46 @@
 {% extends "layout.html" %}
 
 {% block main %}
-<div>
-    {% for song in results %}
-        <div class="song-item" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="song-info" style="border: 1px solid black; padding: 10px; display: flex; align-items: center;">
-                <h3 style="margin-right: 10px;">{{ song['title'] }}</h3>
-                <form action="/" method="POST" class="play-button-form">
-                    <input type="hidden" name="id_next" value="{{ song['videoid'] }}">
-                    <input type="hidden" name="title_next" value="{{ song['title'] }}">
-                    <button class="button" type="submit">Play</button>
-                </form>
-            </div>
-        </div>
+<!-- 
+This template renders a list of songs and provides functionality to play a song or clear the list.
+
+- The outer <div> contains the entire content.
+- A loop iterates over the 'results' context variable, which is expected to be a list of songs.
+- For each song in 'results':
+    - A <div> with class "song-item" is created to hold the song information and play button.
+    - Inside "song-item", another <div> with class "song-info" contains:
+        - An <h3> element displaying the song title.
+        - A form with action="/" and method="POST" to submit the song's video ID and title for playing.
+            - The form includes hidden input fields for 'id_next' and 'title_next' to pass the song's video ID and title.
+            - A submit button with class "button" labeled "Play".
+    - If the current song is not the last in the list, an <hr> element with class "separator" is added after the song item.
+- A form with action="/delete" and method="POST" is provided to clear the list.
+    - The form contains a submit button with class "buttton" (note the typo) labeled "Clear".
+    - The button includes an SVG icon for visual representation.
+-->
+<div style="margin-top: 10px;">
+  {% for song in results %}
+  <div class="song-item" style="display: flex; justify-content: left; align-items: center; margin-left: 100px;">
+      <div class="song-info" style="border: 1px solid black; padding: 10px; display: flex; align-items: center;">
+        <img src="{{ song.thumbnail }}" alt="{{ song.title }}" class="thumbnail">
+          <h3 style="margin-right: 10px;">{{ song.title }}</h3>
+
+          <form action="/" method="POST" class="play-button-form">
+              <input type="hidden" name="id_next" value="{{ song.videoid }}">
+              <input type="hidden" name="title_next" value="{{ song.title }}">
+              <button class="button" type="submit">Play</button>
+          </form>
+          <form action="/delete_next" method="POST" class="play-button-form">
+              <input type="hidden" name="id_delete" value="{{ song.videoid }}">
+              <button type="submit" class="buutton">
+                <svg viewBox="0 0 448 512" class="svgIcon">
+                  <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
+                </svg>
+              </button>
+          </form>
+          
+      </div>
+  </div>
         {% if not loop.last %}
             <hr class="separator">
         {% endif %}
@@ -31,6 +59,78 @@
 
 
 <style>
+.thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+/* From Uiverse.io by vinodjangid07 */ 
+.buutton {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgb(20, 20, 20);
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+  cursor: pointer;
+  transition-duration: .3s;
+  overflow: hidden;
+  position: relative;
+}
+
+.svgIcon {
+  width: 12px;
+  transition-duration: .3s;
+}
+
+.svgIcon path {
+  fill: white;
+}
+
+.buutton:hover {
+  width: 140px;
+  border-radius: 50px;
+  transition-duration: .3s;
+  background-color: rgb(255, 69, 69);
+  align-items: center;
+}
+
+.buutton:hover .svgIcon {
+  width: 50px;
+  transition-duration: .3s;
+  transform: translateY(60%);
+}
+
+.buutton::before {
+  position: absolute;
+  top: -20px;
+  content: "Delete";
+  color: white;
+  transition-duration: .3s;
+  font-size: 2px;
+}
+
+.buutton:hover::before {
+  font-size: 13px;
+  opacity: 1;
+  transform: translateY(30px);
+  transition-duration: .3s;
+}
+
+
+
+
+
+
+
+
+
+
 
 .button {
  --color: #00A97F;
@@ -88,7 +188,9 @@
  filter: brightness(.8);
 }
 
-
+.thumbnail-container {
+  margin-right: 10px;
+}
 
 .song-item {
     display: flex;

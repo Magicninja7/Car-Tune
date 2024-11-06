@@ -1,3 +1,7 @@
+/*
+This is the css for layout.html, it gives the navbar a dark red background color and white text color.
+*/
+
 .custom-navbar {
     background-color: #5e0303; /* Dark Red */
     width: 100%;

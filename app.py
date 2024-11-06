@@ -8,6 +8,33 @@ app = Flask(__name__)
 
 
 
+'''
+This module provides a Flask web application for interacting with YouTube Music. It allows users to search for songs,
+play videos, view library albums, and manage a local SQLite database of songs.
+Modules:
+    sqlite3: A module for interacting with SQLite databases.
+    ytmusicapi: A module for interacting with YouTube Music API.
+    flask: A micro web framework for Python.
+    yt_dlp: A module for downloading videos from YouTube and other video platforms.
+Functions:
+    main(): Handles the main route for the web application. Processes both GET and POST requests.
+    play(): Handles the '/play/' route to play a video. Retrieves video details and generates a streaming URL.
+    get_streaming_url(video_id): Generates a streaming URL for a given video ID using yt_dlp.
+    search(): Handles the '/search' route to search for songs on YouTube Music.
+    next_song(): Handles the '/next' route to display the next song from the local database.
+    hihihiha(): Handles the '/songs_albums' route to display songs from a specific album.
+    libraries(): Handles the '/libraries' route to display the user's library albums.
+    delete(): Handles the '/delete' route to delete all songs from the local database.
+Templates:
+    search.html: Template for the search page.
+    main.html: Template for the main video playback page.
+    next.html: Template for displaying the next song.
+    songs_albums.html: Template for displaying songs from a specific album.
+    libraries.html: Template for displaying library albums.
+'''
+
+
+
 @app.route('/', methods=['POST', 'GET'])
 def main():
     if request.method == 'POST':
@@ -33,10 +60,11 @@ def main():
             ''', (videoId, title))
         con.commit()
         con.close()
-        
         return redirect(url_for('play', videoId=videoId, title=title, thumbnail=thumbnail))
     
     return render_template('search.html')
+
+
 
 @app.route('/play/')
 def play():
@@ -68,6 +96,9 @@ def get_streaming_url(video_id):
         audio_url = info['url'] if 'url' in info else None
     return audio_url
 
+
+
+
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     results = []
@@ -89,6 +120,7 @@ def search():
                     thumbnails.append('')
     return render_template('search.html', results=results, thumbnails=thumbnails, zip=zip)
 
+
 @app.route('/next', methods=['GET'])
 def next_song():
     con = sqlite3.connect("songs.db")
@@ -96,7 +128,25 @@ def next_song():
     cursor = con.cursor()
     results = cursor.execute("SELECT title, videoid FROM songs").fetchall()
     con.close()
-    return render_template('next.html', results=results)
+    results_with_thumbnails = []
+    for i in results:
+        videoId = i["videoid"]
+        video_details = ytmusic.get_song(videoId)["videoDetails"]
+        if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
+            thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
+        else:
+            microformat = ytmusic.get_song(videoId)["microformat"]["microformatDataRenderer"]
+            if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
+                thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
+            else:
+                thumbnail = ''
+        results_with_thumbnails.append({
+            "title": i["title"],
+            "videoid": videoId,
+            "thumbnail": thumbnail
+        })
+        
+    return render_template('next.html', results=results_with_thumbnails)
 
 
 
@@ -134,9 +184,17 @@ def delete():
     cursor.execute("DELETE FROM songs")
     con.commit()
     con.close()
-    return render_template("next.html")
-    
+    return redirect("/next") 
 
+@app.route('/delete_next', methods=['POST'])
+def delete_next():
+    song = request.form.get('id_delete')
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    cursor.execute("DELETE FROM songs WHERE videoid = ?", (song,))
+    con.commit()
+    con.close()
+    return redirect("/next") 
 
 
 

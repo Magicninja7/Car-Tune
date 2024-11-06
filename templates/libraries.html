@@ -1,6 +1,29 @@
 {% extends "layout.html" %}
 
 {% block main %}
+    <!-- 
+        This template renders a list of albums with their details.
+
+        Elements:
+        - <h2 class="album-text">: Header for the albums section.
+        - <ul class="albums-list">: Unordered list to contain album items.
+
+        Loop:
+        - {% for album in albums %}: Iterates over each album in the albums list.
+
+        Album Item:
+        - <li>: List item for each album.
+        - <strong>{{ album['title'] }}</strong>: Displays the album title in bold.
+        - <img src="{{ album['thumbnails'][0]['url'] }}" alt="{{ album['title'] }} cover" width="226" height="226">: Displays the album cover image.
+        - {{ album['artists'][0]['name'] if album['artists'] else 'Unknown Artist' }}: Displays the artist name or 'Unknown Artist' if no artist is available.
+        - {{ album['year'] }}: Displays the album release year.
+        - <form action="/songs_albums" method="POST">: Form to view songs in the album.
+            - <input type="hidden" name="thumbnail" value="{{ album['thumbnails'][0]['url'] if album['thumbnails'] else '' }}">: Hidden input to store the album thumbnail URL.
+            - <button name='hihihiha' value="{{ album['browseId'] }}" type="submit">View Songs</button>: Button to submit the form and view songs in the album.
+
+        End Loop:
+        - {% endfor %}: Ends the loop over albums.
+    -->
     <h2 class="album-text">Albums</h2>
     <ul class="albums-list">
         {% for album in albums %}

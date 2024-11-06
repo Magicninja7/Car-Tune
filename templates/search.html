@@ -1,6 +1,24 @@
 {% extends "layout.html" %}
 
 {% block main %}
+    <!-- 
+      This HTML template renders a search form and displays search results for songs.
+
+      The form:
+      - Action: Submits a POST request to the "/search" endpoint.
+      - Contains an input field for the search query and a submit button.
+
+      If search results are available:
+      - A container div with the class "songs-container" is rendered.
+      - For each song in the results, a song item is displayed with:
+        - An image thumbnail of the song.
+        - The song title and the first artist's name.
+        - A form to play the song, which submits a POST request to the root endpoint ("/") with hidden inputs for the song's ID, title, and thumbnail URL.
+        - The song's duration.
+
+      JavaScript:
+      - On window load, the page scrolls down by 560 pixels if the window width is greater than 768 pixels, otherwise it scrolls down by 200 pixels.
+    -->
     <form action="/search" method="post" class="centerr">
         <input placeholder="Search for songs..." class="iinput" name="query" type="text">
         <button type="submit" class="buttonpro">

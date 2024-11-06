@@ -1,6 +1,18 @@
 {% extends "layout.html" %}
 
 {% block main %}
+    <!-- 
+        This template displays a list of songs in an album.
+
+        Structure:
+        - A heading "Songs in Album".
+        - A container div with the class "songs-container" that iterates over a list of songs.
+        - For each song, a div with the class "song-info" is created containing:
+            - The song title in an <h3> tag.
+            - An optional paragraph displaying the artist's name if the song has an 'artists' field.
+            - An optional paragraph displaying the song's duration if the song has a 'duration' field.
+            - A form with a POST method to submit the song's video ID and title for playback.
+    -->
     <h2>Songs in Album</h2>
     
     <div class="songs-container">

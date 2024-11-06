@@ -9,6 +9,16 @@
     <link href="/static/styles.css" rel="stylesheet">
 </head>
 
+<!-- 
+This HTML template defines the layout for a web page with a navigation bar and a main content area.
+
+- The <nav> element contains a navigation bar with three links:
+    - "Search" which uses the Flask `url_for` function to generate the URL for the 'search' endpoint.
+    - "Next" which links directly to the "/next" URL.
+    - "Libraries" which uses the Flask `url_for` function to generate the URL for the 'libraries' endpoint.
+
+- The <main> element is styled with padding at the bottom and contains a block where content can be inserted using Flask's template inheritance.
+-->
 <body>
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container-fluid">

@@ -1,6 +1,20 @@
 {% extends "layout.html" %}
 
 {% block main %}
+    <!-- 
+        This template renders an audio player if a streaming URL is provided.
+
+        Conditional Rendering:
+        - If `streaming_url` is available:
+            - Displays an audio player with the following elements:
+                - Thumbnail image (if `thumbnail` is provided)
+                - Title of the audio (if `title` is provided)
+                - Control buttons for skipping backward, play/pause, and skipping forward
+                - Progress bar with current time and duration
+                - HTML5 audio element with the source set to `streaming_url`
+        - If `streaming_url` is not available:
+            - Displays a message prompting the user to choose a song in search
+    -->
     {% if streaming_url %}
         <div class="audio-player">
             {% if thumbnail %}
