@@ -1,26 +1,71 @@
-Car Tune Software 🎶
-The Car Tune software is a custom music player built for the Raspberry Pi Zero, designed to give a retro, intuitive experience for listening to your favorite tracks. The software connects to YouTube Music, allowing you to easily browse, select, and play music with a touchscreen interface, emulating the feel of an old-school GPS device.
+<h1 align="center" id="title">Car Tune</h1>
 
-Overview:
-Car Tune’s interface is built with web technologies, designed to be responsive and user-friendly on a 3.5" LCD touchscreen. The software leverages the YouTube Music API to access your personal library, providing a straightforward way to navigate by artist and album. Playback controls, including play, pause, and skip, are built directly into the UI, creating a seamless in-car or portable listening experience.
+<p align="center"><img src="https://cloud-hdrgisryx-hack-club-bot.vercel.app/0image.png" alt="project-image"></p>
 
-Features:
-Integration with your YouTube Music library, allowing quick access to favorite songs, albums, and artists.
-Simple, touch-optimized controls for playing, pausing, and skipping songs.
-Organized music browsing with intuitive sorting by artist and album.
-Responsive design that adapts to a small LCD screen for a clean, retro interface.
-Installation and Setup
-To set up Car Tune, clone the repository, install the required dependencies, and configure it with your YouTube Music API credentials. The software is written in Python with a Flask backend, and the front-end interface uses HTML, CSS, and JavaScript templated with Jinja2. Once set up locally, the software can be transferred to your Raspberry Pi Zero for portable use.
+<p id="description">A portable music player and controller built using a Raspberry Pi Zero and touchscreen inspired by Spotify's "Car Thing." Car-Tune integrates with a YouTube Music account offering in-car or speaker Bluetooth connectivity providing users a streamlined music experience while on the go.</p>
 
-Tech Stack:
-Car Tune is built with:
+<h2>Project Screenshots:</h2>
 
-Python and Flask for the server-side logic
-HTML, CSS, and JavaScript for a responsive, touch-friendly UI
-YouTube Music API for accessing music data in real time
-Contributing
-Contributions are welcome! If you’d like to help enhance Car Tune, feel free to fork the repository, make improvements, and open a pull request.
+<img src="https://cloud-lolm1r6cz-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="400" height="400/">
 
-License:
-Licensed under the MIT License.
+<img src="https://cloud-4zidvul47-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="400" height="400/">
 
+  
+  
+<h2>🧐 Features</h2>
+
+Here're some of the project's best features:
+
+*   YouTube Music Integration: Access your YouTube Music library including playlists albums and recommendations.
+*   Touchscreen Control: Navigate playback using a 3.5" touchscreen display with intuitive play pause next and previous controls.
+*   Bluetooth Connectivity: Stream music to car audio or Bluetooth speakers seamlessly.
+*   Portable Design: Compact easy-to-install setup using a Raspberry Pi Zero.
+*   User-Friendly Interface: Clean and minimal UI optimized for in-car use reducing distractions.
+*   Support for creating your own libraries
+
+<h2>🛠️ Installation Steps:</h2>
+
+<p>1. Clone the Repository</p>
+
+```
+git clone https://github.com/Magicninja7/Car-Tune.git
+```
+
+<p>2. Enter the directory</p>
+
+```
+cd Car-Tune
+```
+
+<p>3. Install libraries</p>
+
+```
+pip install ytmusicapi yt-dlp
+```
+
+<p>4. Run!</p>
+
+```
+python app.py
+```
+
+<h2>🍰 Contribution Guidelines:</h2>
+
+Fork the repository create a new feature branch make your changes and test thoroughly. Submit a pull request with a clear description of your changes.
+
+  
+  
+<h2>💻 Built with</h2>
+
+Technologies used in the project:
+
+*   Python
+*   Flask
+*   HTML
+*   CSS
+*   JS
+*   YTmusic api
+
+<h2>🛡️ License:</h2>
+
+This project is licensed under the MIT License
