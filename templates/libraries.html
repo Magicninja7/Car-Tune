@@ -1,30 +1,22 @@
 {% extends "layout.html" %}
 
 {% block main %}
-    <!-- 
-        This template renders a list of albums with their details.
+<div class="form-container add-playlist-form">
+    <div class="dropdown">
+        <button type="animated_button" class="animated-button">Add Playlist</button>
+        <div class="dropdown-content">
+            <form action="/add_playlist" method="POST" class="additional-fields">
+                <input type="text" placeholder="Enter playlist name..." name="playlist_name" class="input">
+                <button class='button' type="submit">Create Playlist</button>
+            </form>
+        </div>
+    </div>
+</div>
 
-        Elements:
-        - <h2 class="album-text">: Header for the albums section.
-        - <ul class="albums-list">: Unordered list to contain album items.
 
-        Loop:
-        - {% for album in albums %}: Iterates over each album in the albums list.
 
-        Album Item:
-        - <li>: List item for each album.
-        - <strong>{{ album['title'] }}</strong>: Displays the album title in bold.
-        - <img src="{{ album['thumbnails'][0]['url'] }}" alt="{{ album['title'] }} cover" width="226" height="226">: Displays the album cover image.
-        - {{ album['artists'][0]['name'] if album['artists'] else 'Unknown Artist' }}: Displays the artist name or 'Unknown Artist' if no artist is available.
-        - {{ album['year'] }}: Displays the album release year.
-        - <form action="/songs_albums" method="POST">: Form to view songs in the album.
-            - <input type="hidden" name="thumbnail" value="{{ album['thumbnails'][0]['url'] if album['thumbnails'] else '' }}">: Hidden input to store the album thumbnail URL.
-            - <button name='hihihiha' value="{{ album['browseId'] }}" type="submit">View Songs</button>: Button to submit the form and view songs in the album.
 
-        End Loop:
-        - {% endfor %}: Ends the loop over albums.
-    -->
-    <h2 class="album-text">Albums</h2>
+
     <ul class="albums-list">
         {% for album in albums %}
             <li>
@@ -34,13 +26,101 @@
                 {{ album['year'] }}<br>
                 <form action="/songs_albums" method="POST">
                     <input type="hidden" name="thumbnail" value="{{ album['thumbnails'][0]['url'] if album['thumbnails'] else '' }}">
-                    <button name='hihihiha' value="{{ album['browseId'] }}" type="submit">View Songs</button>
+                    <button name='hihihiha' value="{{ album['browseId'] }}" type="submit" class="animated-button">
+                        <span>View Songs</span>
+                        <span></span>
+                      </button>
+                      
+                </form>
+            </li>
+        {% endfor %}
+
+        {% for result in results %}
+            <li>
+                <strong>{{ result }}</strong><br>
+                <form action="/songs_playlists" method="POST">
+                    <button name='wrrr' value="{{ result }}" type="submit" class="animated-button">
+                        <span>View Songs</span>
+                        <span></span>
+                    </button>  
                 </form>
             </li>
         {% endfor %}
     </ul>
 
-    <style>
+
+
+<script>
+    document.querySelector('.dropdown-content').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+</script>
+
+
+<style>
+
+.add-playlist-form {
+    position: sticky;
+    padding: 10px;
+    z-index: 1000;
+}
+
+
+
+.dropbtn {
+    background-color: rgb(46, 46, 46);
+    color: rgb(214, 214, 214);
+    padding: 10px;
+    border: black;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgb(46, 46, 46);
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 10px;
+}
+
+.additional-fields input,
+.additional-fields button {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: none;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+
+/* From Uiverse.io by cohencoo */ 
+.input {
+  border-radius: 10px;
+  outline: 2px solid #FEBF00;
+  border: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #e2e2e2;
+  outline-offset: 3px;
+  padding: 10px 1rem;
+  transition: 0.25s;
+}
+
+.input:focus {
+  outline-offset: 5px;
+  background-color: #fff
+}
+
+        .additional-fields {
+            display: none;
+            margin-top: 10px;
+        }
+        .form-container:hover .additional-fields {
+            display: block;
+        }
         .album-text {
             text-align: center;
             margin-top: 1%;
@@ -63,17 +143,87 @@
             max-width: 100%;
             height: auto;
         }
-        button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+/* From Uiverse.io by Damithkumara */ 
+.button {
+  padding: 0.9em 1.8em;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 4px;
+  color: transparent;
+  border: 3px solid #ff0;
+  font-size: 14px;
+  position: relative;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.button::before {
+  content: "Save";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #363636;
+  color: #ff0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s;
+}
+
+
+/* From Uiverse.io by gharsh11032000 */ 
+.animated-button {
+  margin-top: 8px;
+  position: relative;
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  font-size: 16px;
+  background-color: inherit;
+  border-radius: 100px;
+  font-weight: 600;
+  color: #ffffffcb;
+  box-shadow: 0 0 0 2px #f3212160;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.animated-button span:last-child {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-color: #f3212160;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.animated-button span:first-child {
+  position: relative;
+  z-index: 1;
+}
+
+.animated-button:hover {
+  box-shadow: 0 0 0 5px #f3212160;
+  color: #ffffff;
+}
+
+.animated-button:active {
+  scale: 0.95;
+}
+
+.animated-button:hover span:last-child {
+  width: 150px;
+  height: 150px;
+  opacity: 1;
+}
+</style>
+
 {% endblock %}

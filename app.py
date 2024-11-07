@@ -172,7 +172,23 @@ def hihihiha():
 @app.route('/libraries', methods=["GET"])
 def libraries():
     albums = ytmusic.get_library_albums(limit=24)
-    return render_template('libraries.html', albums=albums)
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    cursor.execute("""
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table'
+        AND name != 'songs'
+    """)
+    tables = cursor.fetchall()
+    table_names = [table[0] for table in tables]
+    select_queries = [f"SELECT videoid, title FROM {table}" for table in table_names]
+    combined_query = " UNION ALL ".join(select_queries)
+    cursor.execute(combined_query)
+    results = cursor.fetchall()
+    con.commit()
+    con.close()
+    return render_template('libraries.html', playlist=results, albums=albums)
 
 
 
@@ -195,6 +211,51 @@ def delete_next():
     con.commit()
     con.close()
     return redirect("/next") 
+
+@app.route('/add_playlist', methods=['POST'])
+def add_playlist():
+    playlist_name = request.form.get('playlist_name')
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    create_table_query = f"""
+    CREATE TABLE {playlist_name} (
+        place INTEGER PRIMARY KEY,
+        videoid INTEGER NOT NULL,
+        title TEXT NOT NULL
+    );
+    """
+    cursor.execute(create_table_query)
+    con.commit()
+    con.close()
+    return redirect("/libraries")
+
+@app.route('/songs_playlists', methods=['POST', 'GET'])
+def wrrr():
+    if request.method == 'POST':
+        playlist_name = request.form.get('wrrr')
+        con = sqlite3.connect("songs.db")
+        cursor = con.cursor()
+        cursor.execute(f"SELECT videoid, title FROM {playlist_name}")
+        results = cursor.fetchall()
+        con.close()
+    if request.method == 'GET':
+        return render_template('songs_albums.html', songs=results)
+
+
+
+@app.route('/play_playlist', methods=['POST'])
+def play_playlist():
+    playlist_name = request.form.get('playlist_name_play')
+    titleid = request.form.get('song_name_play')
+    title, videoId = titleid.split(',')
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    try:
+        cursor.execute(f"INSERT INTO {playlist_name} VALUES (?, ?)", (videoId, title))
+    except sqlite3.OperationalError:
+        pass
+    con.commit()
+    con.close()
 
 
 
