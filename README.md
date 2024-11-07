@@ -6,9 +6,15 @@
 
 <h2>Project Screenshots:</h2>
 
+<<<<<<< HEAD
 <img src="https://cloud-lolm1r6cz-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="400" height="400/">
 
 <img src="https://cloud-4zidvul47-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="400" height="400/">
+=======
+<img src="https://cloud-lolm1r6cz-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="1500" height="400/">
+
+<img src="https://cloud-4zidvul47-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="1500" height="400/">
+>>>>>>> e53bfe706d5a71aa657b4736fa41a0a3786ad8e9
 
   
   
@@ -68,4 +74,8 @@ Technologies used in the project:
 
 <h2>🛡️ License:</h2>
 
+<<<<<<< HEAD
 This project is licensed under the MIT License
+=======
+This project is licensed under the MIT License
+>>>>>>> e53bfe706d5a71aa657b4736fa41a0a3786ad8e9
