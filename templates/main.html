@@ -40,20 +40,31 @@
             <audio id="audio" src="{{ streaming_url }}"></audio>
         </div>
 
-<div id="add-song" tabindex="0" class="plusButton">
-  <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
-    <g mask="url(#mask0_21_345)">
-      <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
-    </g>
-  </svg>
+
+
+
+
+<div class="form-container add-playlist-form">
+  <div class="dropdown">
+      
+
+    <div id="add-song" tabindex="0" class="plusButton">
+      <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+        <g mask="url(#mask0_21_345)">
+          <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+        </g>
+      </svg>
+    </div>
+      <div class="dropdown-content">
+        <form action="/play_playlist" method="POST">
+          <input type="text" placeholder="Enter playlist name..." name="playlist_name_play" class="input">
+          <button class="button" type="submit" name="song_name_play" value='{"title": "{{ title }}", "videoid": "{{ videoid }}"}'>Add</button>
+      </form>
+      </div>
+  </div>
 </div>
 
-<div class="popup">
-    <form action="/play_playlist" method="POST">
-        <input type="text" placeholder="Enter playlist name..." name="playlist_name_play" class="input">
-        <button class="button" type="submit" name="song_name_play" value='{"title": "{{ title }}", "videoid": "{{ videoid }}"}'>Add</button>
-    </form>
-</div>
+
     {% else %}
         <p>Choose a song first</p>
     {% endif %}
@@ -190,21 +201,35 @@
 
 
 
-.popup {
+.add-playlist-form {
+    position: sticky;
+    padding: 10px;
+    z-index: 1000;
+}
+
+
+
+.dropbtn {
+    background-color: rgb(46, 46, 46);
+    color: rgb(214, 214, 214);
+    padding: 10px;
+    border: black;
+    cursor: pointer;
+}
+
+.dropdown-content {
     display: none;
     position: absolute;
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 8px;
+    background-color: rgb(46, 46, 46);
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     padding: 10px;
-    z-index: 100;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-#add-song:hover + .popup {
+
+.dropdown:hover .dropdown-content {
     display: block;
 }
-
 
 /* styles.css */
 .audio-player {
@@ -306,6 +331,10 @@
         const secs = Math.floor(seconds % 60);
         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     }
+
+document.querySelector('.dropdown-content').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
 </script>
 
 
