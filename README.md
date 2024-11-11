@@ -28,6 +28,8 @@ Here're some of the project's best features:
 *   Portable Design: Compact easy-to-install setup using a Raspberry Pi Zero.
 *   User-Friendly Interface: Clean and minimal UI optimized for in-car use reducing distractions.
 *   Support for creating your own libraries
+*   Song queue
+*   Skips over to next song
 
 <h2>🛠️ Installation Steps:</h2>
 
@@ -71,6 +73,9 @@ Technologies used in the project:
 *   CSS
 *   JS
 *   YTmusic api
+
+<h2> 👀Easter eggs👀 </h2>
+*   Can you find 2 easter eggs?
 
 <h2>🛡️ License:</h2>
 
