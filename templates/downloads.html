@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+
+
+{% block main %}
+<h1>Downloaded Files</h1>
+<ul>
+    {% for file in files %}
+        <li>
+            {{ file }}
+            <audio controls>
+                <source src="{{ url_for('static', filename='downloads/' + file) }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,8 +1,12 @@
 import sqlite3
 from ytmusicapi import YTMusic
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
+import requests
 import yt_dlp
 import json
+import os
+import re
+from builtins import zip
 
 ytmusic = YTMusic("oauth.json")
 app = Flask(__name__)
@@ -34,7 +38,7 @@ Templates:
     libraries.html: Template for displaying library albums.
 '''
 
-
+downloaded = []
 
 song_queue = []
 def get_songs_in_queue():
@@ -333,9 +337,6 @@ def play_playlist():
 def del_playlist():
     playlist_name = request.form.get('playlist_delete_playlist')
     videoid = request.form.get('id_delete_playlist')
-    print(videoid)
-    print(playlist_name)
-    
     valid_playlist_names = ["Focus"]
     if playlist_name not in valid_playlist_names:
         return "Invalid playlist name", 400 
@@ -355,23 +356,66 @@ def del_playlist():
 @app.route('/forward_song', methods=['POST'])
 def forward_song():
     global current_song
-    print(current_song)
     current_song += 1
-    if current_song >= len(song_queue):
-        current_song = len(song_queue) - 1
-    print(current_song)
+    if current_song > len(song_queue):
+        current_song = len(song_queue)
     return redirect(url_for('play', videoId=song_queue[current_song-1]["videoid"], title=song_queue[current_song-1]["title"]))
 
 
 @app.route('/previous_song', methods=['POST'])
 def previous_song():
     global current_song 
-    print(current_song)
     current_song -= 1
     if current_song < 0:
-        current_song = 0
-    print(current_song)
+        current_song = 1
     return redirect(url_for('play', videoId=song_queue[current_song-1]["videoid"], title=song_queue[current_song-1]["title"]))
+
+
+
+
+
+
+
+
+ids = []
+
+
+@app.route('/download', methods=['POST'])
+def download():
+    global ids
+    output_dir = os.path.join(os.getcwd(), "downloads")
+
+    videoid = request.form.get('videoid_d')
+    title = request.form.get('title_d')
+    url = request.form.get('url_d')
+
+    if not url:
+        return "URL not provided", 400
+    if videoid not in ids:
+        response = requests.get(url, stream=True)
+        output_path = os.path.join(output_dir, f"{videoid}.mp3")
+        with open(output_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024):
+                f.write(chunk)
+            ids.append({
+                "videoid": videoid,
+                "title": title
+            })
+    
+    return redirect('/libraries')
+
+@app.route('/show_downloads', methods=['GET'])
+def show_downloads():
+    output_dir = os.path.join(os.getcwd(), "downloads")
+    files = os.listdir(output_dir)
+    global ids
+
+
+    return render_template('downloads.html', files=files, ids=ids, zip=zip)
+
+
+
+
 
 
 

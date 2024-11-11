@@ -73,6 +73,14 @@
   </div>
 </div>
 
+<form action="/download" method="POST">
+  <input type="hidden" name="title_d" value="{{ title }}">
+  <input type="hidden" name="videoid_d" value="{{ videoId }}">
+  <input type="hidden" name="url_d" value="{{ streaming_url }}">
+  <button class="button" type="submit">Download</button>
+</form>
+
+
 
     {% else %}
         <p>Choose a song first</p>

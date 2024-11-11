@@ -1,0 +1,35 @@
+{
+    "name": "media_recommendation",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "media_type": {
+          "type": "string",
+          "enum": [
+            "song",
+            "album",
+            "podcast"
+          ],
+          "description": "The type of media being requested."
+        },
+        "title": {
+          "type": "string",
+          "description": "The name of the song, album, or podcast."
+        },
+        "availability": {
+          "type": "string",
+          "description": "The platform where the media is available for free, must indicate YT Music.",
+          "enum": [
+            "YT Music"
+          ]
+        }
+      },
+      "required": [
+        "media_type",
+        "title",
+        "availability"
+      ],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
