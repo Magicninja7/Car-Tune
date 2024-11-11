@@ -34,20 +34,20 @@
                 </form>
             </li>
         {% endfor %}
-
-        {% for result in results %}
-            <li>
-                <strong>{{ result }}</strong><br>
-                <form action="/songs_playlists" method="POST">
-                    <button name='wrrr' value="{{ result }}" type="submit" class="animated-button">
-                        <span>View Songs</span>
-                        <span></span>
-                    </button>  
-                </form>
-            </li>
-        {% endfor %}
     </ul>
 
+{% for song in table_names %}
+    <li style="display: flex; align-items: center; border-bottom: 3px solid black; padding: 10px 0; margin-left: 20px;">
+        <strong style="margin-right: 10px; width: 200px;">{{ song }}</strong>
+        <div style="border-left: 1px solid black; height: 20px; margin: 0 10px;"></div>
+        <form action="/songs_playlists" method="POST">
+            <button name='wrrr' value="{{ song }}" type="submit" class="animated-button">
+                <span>View Songs</span>
+                <span></span>
+            </button>  
+        </form>
+    </li>
+{% endfor %}
 
 
 <script>
@@ -58,6 +58,10 @@
 
 
 <style>
+.colorwhite {
+    color: white;
+}
+
 
 .add-playlist-form {
     position: sticky;

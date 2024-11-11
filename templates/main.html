@@ -26,18 +26,27 @@
             {% endif %}
             
             <div class="controls">
-                <button id="skip-backward">⏮️</button>
-                <button id="play-pause">▶️</button>
-                <button id="skip-forward">⏭️</button>
+                <button id="skip-backward">⏪</button>
+                <button id="play-pause">⏸️</button>
+                <button id="skip-forward">⏩</button>
             </div>
-            
+
+
+          <div class="controls">
+            <form method="POST" action="/previous_song">
+              <button name="skip-backward" value="{{ index }}" type="submit">⏮️</button>
+            </form>
             <div class="progress-container">
                 <span id="current-time">0:00</span>
                 <input type="range" id="progress-bar" value="0" min="0">
                 <span id="duration">0:00</span>
             </div>
+            <form method="POST" action="/forward_song">
+              <button name="skip-forward" value="{{ index }}" type="submit">⏭️</button>
+            </form>
+          </div>
             
-            <audio id="audio" src="{{ streaming_url }}"></audio>
+            <audio id="audio" src="{{ streaming_url }}" autoplay></audio>
         </div>
 
 
@@ -58,7 +67,7 @@
       <div class="dropdown-content">
         <form action="/play_playlist" method="POST">
           <input type="text" placeholder="Enter playlist name..." name="playlist_name_play" class="input">
-          <button class="button" type="submit" name="song_name_play" value='{"title": "{{ title }}", "videoid": "{{ videoid }}"}'>Add</button>
+          <button class="button" type="submit" name="song_name_play" value='{"title": "{{ title }}", "videoid": "{{ videoId }}"}'>Add</button>
       </form>
       </div>
   </div>
@@ -271,6 +280,7 @@
     align-items: center;
     width: 100%;
     max-width: 400px;
+    width: 300pc;
 }
 
 #progress-bar {
@@ -294,7 +304,6 @@
     const progressBar = document.getElementById('progress-bar');
     const currentTimeEl = document.getElementById('current-time');
     const durationEl = document.getElementById('duration');
-
     playPauseBtn.addEventListener('click', () => {
         if (audio.paused) {
             audio.play();
@@ -304,6 +313,7 @@
             playPauseBtn.textContent = '▶️';
         }
     });
+    
 
     skipForwardBtn.addEventListener('click', () => {
         audio.currentTime += 15;
@@ -332,8 +342,25 @@
         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
-document.querySelector('.dropdown-content').addEventListener('click', function(event) {
+// Add event listener to keep dropdown open when typing
+document.querySelector('.dropdown-content form').addEventListener('click', function(event) {
     event.stopPropagation();
+});
+
+document.getElementById('playlistForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('/play_playlist', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.redirect){
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => console.error('Error:', error));
 });
 </script>
 

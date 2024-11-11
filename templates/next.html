@@ -26,6 +26,7 @@ This template renders a list of songs and provides functionality to play a song 
           <h3 style="margin-right: 10px;">{{ song.title }}</h3>
 
           <form action="/" method="POST" class="play-button-form">
+              <input type="hidden" name="place_next" value="{{ song.place }}">
               <input type="hidden" name="id_next" value="{{ song.videoid }}">
               <input type="hidden" name="title_next" value="{{ song.title }}">
               <button class="button" type="submit">Play</button>

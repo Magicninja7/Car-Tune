@@ -2,6 +2,7 @@ import sqlite3
 from ytmusicapi import YTMusic
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 import yt_dlp
+import json
 
 ytmusic = YTMusic("oauth.json")
 app = Flask(__name__)
@@ -35,32 +36,60 @@ Templates:
 
 
 
+song_queue = []
+def get_songs_in_queue():
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    songs_in_queue = cursor.execute("SELECT videoid, title FROM songs").fetchall()
+    con.close()
+    return songs_in_queue
+
+i = 1
+songs_in_queue = get_songs_in_queue()
+for videoid, title in songs_in_queue:
+    song_queue.append({
+        "videoid": videoid,
+        "title": title,
+        "index": i
+    })
+    i += 1
+current_song = len(song_queue) - 1 if len(song_queue) > 0 else 0
+
+
 @app.route('/', methods=['POST', 'GET'])
 def main():
     if request.method == 'POST':
-        videoId = request.form.get('id')
-        if not videoId:
-            videoId = request.form.get('id_library')
-        if not videoId:
-            videoId = request.form.get("id_next")
-        title = request.form.get('title')
-        if not title:
-            title = request.form.get('title_library')
-        if not title:
-            title = request.form.get('title_next')
+        videoId = request.form.get('id') or request.form.get('id_library') or request.form.get("id_next")
+        title = request.form.get('title') or request.form.get('title_library') or request.form.get('title_next')
         thumbnail = request.form.get('thumbnail')
-        con = sqlite3.connect("songs.db")
-        cursor = con.cursor()
+        place = request.form.get("place_next")
+        
 
-        cursor.execute('SELECT * FROM songs WHERE videoid = ?', (videoId,))
-        if not cursor.fetchone():
+        global current_song
+
+        if not place:
+            current_song = len(song_queue) - 1
+            con = sqlite3.connect("songs.db")
+            cursor = con.cursor()
+
             cursor.execute('''
                 INSERT INTO songs (videoid, title)
                 VALUES (?, ?)
             ''', (videoId, title))
-        con.commit()
-        con.close()
-        return redirect(url_for('play', videoId=videoId, title=title, thumbnail=thumbnail))
+            con.commit()
+            con.close()
+
+            current_song += 1
+            song_queue.append({
+                "videoid": videoId,
+                "title": title,
+                "index": current_song
+            })
+        else:
+            current_song = int(place)    
+
+
+        return redirect(url_for('play', videoId=videoId, title=title, thumbnail=thumbnail, index=current_song))
     
     return render_template('search.html')
 
@@ -70,6 +99,7 @@ def main():
 def play():
     videoId = request.args.get('videoId')
     title = request.args.get('title')
+    index = request.args.get('index')
     video_details = ytmusic.get_song(videoId)["videoDetails"]
     if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
         thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
@@ -78,11 +108,14 @@ def play():
         if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
             thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
     streaming_url = get_streaming_url(videoId) if videoId else None
+    
+
     return render_template('main.html', 
                            videoId=videoId, 
                            streaming_url=streaming_url,
                            title=title,
-                           thumbnail=thumbnail)
+                           thumbnail=thumbnail,
+                           index=index)
 
 def get_streaming_url(video_id):
     url = f"https://music.youtube.com/watch?v={video_id}"
@@ -140,10 +173,12 @@ def next_song():
                 thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
             else:
                 thumbnail = ''
+        y = 1
         results_with_thumbnails.append({
             "title": i["title"],
             "videoid": videoId,
-            "thumbnail": thumbnail
+            "thumbnail": thumbnail,
+            "place": y
         })
         
     return render_template('next.html', results=results_with_thumbnails)
@@ -188,7 +223,9 @@ def libraries():
     results = cursor.fetchall()
     con.commit()
     con.close()
-    return render_template('libraries.html', playlist=results, albums=albums)
+
+
+    return render_template('libraries.html', table_names=table_names, albums=albums)
 
 
 
@@ -231,6 +268,7 @@ def add_playlist():
 
 @app.route('/songs_playlists', methods=['POST', 'GET'])
 def wrrr():
+    results_with_thumbnails = []
     if request.method == 'POST':
         playlist_name = request.form.get('wrrr')
         con = sqlite3.connect("songs.db")
@@ -238,24 +276,107 @@ def wrrr():
         cursor.execute(f"SELECT videoid, title FROM {playlist_name}")
         results = cursor.fetchall()
         con.close()
-    if request.method == 'GET':
-        return render_template('songs_albums.html', songs=results)
+        for i in results:
+            videoId = i[0]
+            title_data = i[1]
+
+            try:
+                video_details = ytmusic.get_song(videoId)["videoDetails"]
+                if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
+                    thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
+                else:
+                    microformat = ytmusic.get_song(videoId)["microformat"]["microformatDataRenderer"]
+                    if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
+                        thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
+                    else:
+                        thumbnail = ''
+            except KeyError:
+                thumbnail = ''
+    
+            results_with_thumbnails.append({
+            "title": title_data,
+            "videoid": videoId,
+            "thumbnail": thumbnail,
+            "playlist_name": playlist_name
+        })
+    videoId_rick = ytmusic.search('Never Gonna Give You Up', filter="songs")[0]['videoId']
+    streaming_url_rick = get_streaming_url(videoId_rick)
+
+    return render_template('songs_playlists.html', songs=results_with_thumbnails, rick_astley=streaming_url_rick)
 
 
 
 @app.route('/play_playlist', methods=['POST'])
 def play_playlist():
     playlist_name = request.form.get('playlist_name_play')
-    titleid = request.form.get('song_name_play')
-    title, videoId = titleid.split(',')
+    song_data = request.form.get('song_name_play')
+    try:
+        song = json.loads(song_data)
+        title = song.get('title')
+        videoId = song.get('videoid')
+    except json.JSONDecodeError:
+        print('Invalid song data format')
+        return redirect('/libraries')
+    
     con = sqlite3.connect("songs.db")
     cursor = con.cursor()
     try:
-        cursor.execute(f"INSERT INTO {playlist_name} VALUES (?, ?)", (videoId, title))
+        cursor.execute(f"INSERT INTO {playlist_name} (videoid, title) VALUES (?, ?)", (videoId, title))
     except sqlite3.OperationalError:
-        pass
+        print('Table doesn\'t exist')
     con.commit()
     con.close()
+    return redirect('/libraries')
+
+
+@app.route('/delete_playlist', methods=['POST'])
+def del_playlist():
+    playlist_name = request.form.get('playlist_delete_playlist')
+    videoid = request.form.get('id_delete_playlist')
+    print(videoid)
+    print(playlist_name)
+    
+    valid_playlist_names = ["Focus"]
+    if playlist_name not in valid_playlist_names:
+        return "Invalid playlist name", 400 
+    query = f"DELETE FROM {playlist_name} WHERE videoid = ?"
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    cursor.execute(query, (videoid,))
+    con.commit()
+    con.close()
+    
+    return redirect('/libraries')
+
+
+
+
+
+@app.route('/forward_song', methods=['POST'])
+def forward_song():
+    global current_song
+    print(current_song)
+    current_song += 1
+    if current_song >= len(song_queue):
+        current_song = len(song_queue) - 1
+    print(current_song)
+    return redirect(url_for('play', videoId=song_queue[current_song-1]["videoid"], title=song_queue[current_song-1]["title"]))
+
+
+@app.route('/previous_song', methods=['POST'])
+def previous_song():
+    global current_song 
+    print(current_song)
+    current_song -= 1
+    if current_song < 0:
+        current_song = 0
+    print(current_song)
+    return redirect(url_for('play', videoId=song_queue[current_song-1]["videoid"], title=song_queue[current_song-1]["title"]))
+
+
+
+
+
 
 
 
@@ -263,3 +384,4 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
+ 
