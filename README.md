@@ -30,6 +30,9 @@ Here're some of the project's best features:
 *   Support for creating your own libraries
 *   Song queue
 *   Skips over to next song
+*   Option to download songs
+
+
 
 <h2>🛠️ Installation Steps:</h2>
 
