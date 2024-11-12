@@ -378,6 +378,25 @@ def previous_song():
 
 
 ids = []
+con = sqlite3.connect('songs.db')
+con.row_factory = sqlite3.Row  # Enable dictionary-like access
+cursor = con.cursor()
+
+# Execute the query
+cursor.execute("SELECT videoid, title, thumbnail FROM ids")
+rows = cursor.fetchall()
+
+# Populate ids with dictionaries
+ids = []
+for row in rows:
+    ids.append({
+        "videoid": row["videoid"],
+        "title": row["title"],
+        "thumbnail": row["thumbnail"]
+    })
+con.commit()
+con.close()
+
 
 
 @app.route('/download', methods=['POST'])
@@ -387,32 +406,74 @@ def download():
 
     videoid = request.form.get('videoid_d')
     title = request.form.get('title_d')
-    url = request.form.get('url_d')
+    url = get_streaming_url(videoid) if videoid else None
 
     if not url:
         return "URL not provided", 400
-    if videoid not in ids:
+    if videoid not in [item['videoid'] for item in ids]:
         response = requests.get(url, stream=True)
         output_path = os.path.join(output_dir, f"{videoid}.mp3")
         with open(output_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=1024):
                 f.write(chunk)
+            video_details = ytmusic.get_song(videoid)["videoDetails"]
+            if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
+                thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
+            else:
+                microformat = ytmusic.get_song(videoid)["microformat"]["microformatDataRenderer"]
+                if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
+                    thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
             ids.append({
                 "videoid": videoid,
-                "title": title
+                "title": title,
+                "thumbnail": thumbnail
             })
-    
+
+            con = sqlite3.connect("songs.db")
+            cursor = con.cursor()
+            cursor.execute('''
+                INSERT INTO ids (videoid, title, thumbnail)
+                VALUES (?, ?, ?)
+            ''', (videoid, title, thumbnail))
+            con.commit()
+            con.close()
     return redirect('/libraries')
+
+
 
 @app.route('/show_downloads', methods=['GET'])
 def show_downloads():
+    global ids
+    return render_template('list_downloads.html', ids=ids)
+
+
+
+
+
+@app.route('/play_downloads', methods=['POST', 'GET'])
+def play_downloads():
+    global ids
     output_dir = os.path.join(os.getcwd(), "downloads")
     files = os.listdir(output_dir)
-    global ids
+    videoid = request.form.get('id_download')
+    title = request.form.get('title_download')
+
+    for file in files:
+        if os.path.splitext(file)[0] == videoid:
+            chosen_song = file
+            break
+
+    for i in ids:
+        if i['videoid'] == videoid:
+            thumbnail = i['thumbnail']
+
+    return render_template('play_downloads.html', ids=ids, chosen_song=chosen_song, title=title, videoid=videoid, thumbnail=thumbnail)
 
 
-    return render_template('downloads.html', files=files, ids=ids, zip=zip)
 
+@app.route('/downloads/<filename>')
+def download_file(filename):
+    return send_from_directory('downloads', filename)
 
 
 

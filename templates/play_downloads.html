@@ -1,0 +1,334 @@
+{% extends "layout.html" %}
+
+{% block main %}
+
+{% if chosen_song %}
+<div class="audio-player">
+    {% if thumbnail %}
+        <img src="{{ thumbnail }}" alt="{{ title }}" class="thumbnail">
+    {% endif %}
+    
+    {% if title %}
+        <h3 class="title">{{ title }}</h3>
+    {% endif %}
+    
+    <div class="controls">
+        <button id="skip-backward">⏪</button>
+        <button id="play-pause">▶️</button>
+        <button id="skip-forward">⏩</button>
+    </div>   
+    <div class="controls">
+        <form method="POST" action="/previous_song">
+            <button name="skip-backward" value="{{ index }}" type="submit">⏮️</button>
+        </form>
+
+        <div class="progress-container">
+            <span id="current-time">0:00</span>
+            <input type="range" id="progress-bar" value="0" min="0">
+            <span id="duration">0:00</span>
+        </div>
+        
+        <form method="POST" action="/forward_song">
+            <button name="skip-forward" value="{{ index }}" type="submit">⏭️</button>
+        </form>
+      </div>
+
+    <audio id="audio" src="{{ url_for('download_file', filename=chosen_song) }}" type="audio/mpeg" autoplay></audio>
+</div>
+
+
+{% else %}
+    <p>Choose a song first</p>
+{% endif %}
+
+
+
+
+
+
+<style>
+
+.button {
+  --key-text-color: #969faf;
+  --docsearch-key-shadow: inset 0 -2px 0 0 #cdcde6, inset 0 0 1px 1px #fff,
+    0 1px 2px 1px rgba(30, 35, 90, 0.4);
+  --docsearch-key-gradient: linear-gradient(-225deg, #d5dbe4, #f8f8f8);
+  border: none;
+  background: var(--docsearch-key-gradient);
+  border-radius: 3px;
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--key-text-color);
+  cursor: pointer;
+  height: 2.5em;
+  text-align: center;
+  padding: 0.6em;
+  margin: 0 0.6em;
+  display: inline-block;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 1em;
+  min-width: 1em;
+  line-height: 1em;
+  user-select: none;
+}
+
+
+/* From Uiverse.io by Galahhad */ 
+.input {
+  max-width: 190px;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 2px 2px 7px 0 rgb(0, 0, 0, 0.2);
+  outline: none;
+  color: dimgray;
+}
+
+.input:invalid {
+  animation: justshake 0.3s forwards;
+  color: red;
+}
+
+@keyframes justshake {
+  25% {
+    transform: translateX(5px);
+  }
+
+  50% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+
+  100% {
+    transform: translateX-(5px);
+  }
+}
+
+/* From Uiverse.io by OnCloud125252 */ 
+/* Note that you only needs to edit the config to customize the button! */
+
+.plusButton {
+  /* Config start */
+  --plus_sideLength: 2.5rem;
+  --plus_topRightTriangleSideLength: 0.9rem;
+  /* Config end */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+  width: var(--plus_sideLength);
+  height: var(--plus_sideLength);
+  background-color: #000000;
+  overflow: hidden;
+}
+
+.plusButton::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-width: 0 var(--plus_topRightTriangleSideLength) var(--plus_topRightTriangleSideLength) 0;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover {
+  cursor: pointer;
+}
+
+.plusButton:hover::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton:focus-visible::before {
+  --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+}
+
+.plusButton>.plusIcon {
+  fill: white;
+  width: calc(var(--plus_sideLength) * 0.7);
+  height: calc(var(--plus_sideLength) * 0.7);
+  z-index: 1;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.2s;
+}
+
+.plusButton:hover>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+.plusButton:focus-visible>.plusIcon {
+  fill: black;
+  transform: rotate(180deg);
+}
+
+
+
+
+
+.add-playlist-form {
+    position: sticky;
+    padding: 10px;
+    z-index: 1000;
+}
+
+
+
+.dropbtn {
+    background-color: rgb(46, 46, 46);
+    color: rgb(214, 214, 214);
+    padding: 10px;
+    border: black;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgb(46, 46, 46);
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 10px;
+}
+
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* styles.css */
+.audio-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.thumbnail {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    margin-top: 40px;
+}
+
+.title {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.controls {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.controls button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    width: 300pc;
+}
+
+#progress-bar {
+    flex: 1;
+    margin: 0 10px;
+}
+
+#current-time,
+#duration {
+    font-size: 14px;
+    width: 40px;
+    text-align: center;
+}
+</style>
+
+<script>
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('play-pause');
+    const skipForwardBtn = document.getElementById('skip-forward');
+    const skipBackwardBtn = document.getElementById('skip-backward');
+    const progressBar = document.getElementById('progress-bar');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            playPauseBtn.textContent = '⏸️';
+        } else {
+            audio.pause();
+            playPauseBtn.textContent = '▶️';
+        }
+    });
+    
+
+    skipForwardBtn.addEventListener('click', () => {
+        audio.currentTime += 15;
+    });
+    skipBackwardBtn.addEventListener('click', () => {
+        audio.currentTime -= 15;
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        progressBar.value = audio.currentTime;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+        progressBar.max = audio.duration;
+        durationEl.textContent = formatTime(audio.duration);
+    });
+
+    progressBar.addEventListener('input', () => {
+        audio.currentTime = progressBar.value;
+    });
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+// Add event listener to keep dropdown open when typing
+document.querySelector('.dropdown-content form').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+document.getElementById('playlistForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('/play_playlist', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.redirect){
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
+
+
+
+{% endblock %}
