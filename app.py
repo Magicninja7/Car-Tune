@@ -631,8 +631,21 @@ def logout():
 
 
 #add websockets for live comments
-#add login and register system
 #radio via https://pypi.org/project/radio/
+#music stats
+#reccomendation system, based on last played songs
+#context aware - suggest music based on user location; time of day; weather; etc
+
+#dynamic theme, based on music
+#music while browsing in website
+#soundscape integration (rain, fireplace, thunderstorm, (sounds) etc)
+
+#help suggest music and create playlist etc (ai)
+#mood and lyric tracking, for better suggestions (ai)
+#equalizer (maybe with ai)
+#album art generator (ai)
+#audio analasis (python + ai)
+
 
 
 
