@@ -1,15 +1,30 @@
 import sqlite3
 from ytmusicapi import YTMusic
-from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, session
 import requests
 import yt_dlp
 import json
 import os
 import re
 from builtins import zip
+from openai import OpenAI
+from flask_socketio import SocketIO, send
+import anthropic
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
 
 ytmusic = YTMusic("oauth.json")
 app = Flask(__name__)
+
+
+
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_secret_key')
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
 
 
 
@@ -61,6 +76,7 @@ current_song = len(song_queue) - 1 if len(song_queue) > 0 else 0
 
 
 @app.route('/', methods=['POST', 'GET'])
+@login_required
 def main():
     if request.method == 'POST':
         videoId = request.form.get('id') or request.form.get('id_library') or request.form.get("id_next")
@@ -100,6 +116,7 @@ def main():
 
 
 @app.route('/play/')
+@login_required
 def play():
     videoId = request.args.get('videoId')
     title = request.args.get('title')
@@ -137,6 +154,7 @@ def get_streaming_url(video_id):
 
 
 @app.route('/search', methods=['GET', 'POST'])
+@login_required
 def search():
     results = []
     thumbnails = []
@@ -159,6 +177,7 @@ def search():
 
 
 @app.route('/next', methods=['GET'])
+@login_required
 def next_song():
     con = sqlite3.connect("songs.db")
     con.row_factory = sqlite3.Row
@@ -191,6 +210,7 @@ def next_song():
 
 
 @app.route('/songs_albums', methods=['POST', 'GET'])
+@login_required
 def hihihiha():
     songs = []
     if request.method == 'POST':
@@ -209,6 +229,7 @@ def hihihiha():
 
 
 @app.route('/libraries', methods=["GET"])
+@login_required
 def libraries():
     albums = ytmusic.get_library_albums(limit=24)
     con = sqlite3.connect("songs.db")
@@ -235,6 +256,7 @@ def libraries():
 
 
 @app.route('/delete', methods=['POST'])
+@login_required
 def delete():
     con = sqlite3.connect("songs.db")
     cursor = con.cursor()
@@ -244,6 +266,7 @@ def delete():
     return redirect("/next") 
 
 @app.route('/delete_next', methods=['POST'])
+@login_required
 def delete_next():
     song = request.form.get('id_delete')
     con = sqlite3.connect("songs.db")
@@ -254,6 +277,7 @@ def delete_next():
     return redirect("/next") 
 
 @app.route('/add_playlist', methods=['POST'])
+@login_required
 def add_playlist():
     playlist_name = request.form.get('playlist_name')
     con = sqlite3.connect("songs.db")
@@ -271,6 +295,7 @@ def add_playlist():
     return redirect("/libraries")
 
 @app.route('/songs_playlists', methods=['POST', 'GET'])
+@login_required
 def wrrr():
     results_with_thumbnails = []
     if request.method == 'POST':
@@ -311,6 +336,7 @@ def wrrr():
 
 
 @app.route('/play_playlist', methods=['POST'])
+@login_required
 def play_playlist():
     playlist_name = request.form.get('playlist_name_play')
     song_data = request.form.get('song_name_play')
@@ -334,6 +360,7 @@ def play_playlist():
 
 
 @app.route('/delete_playlist', methods=['POST'])
+@login_required
 def del_playlist():
     playlist_name = request.form.get('playlist_delete_playlist')
     videoid = request.form.get('id_delete_playlist')
@@ -354,6 +381,7 @@ def del_playlist():
 
 
 @app.route('/forward_song', methods=['POST'])
+@login_required
 def forward_song():
     global current_song
     current_song += 1
@@ -363,6 +391,7 @@ def forward_song():
 
 
 @app.route('/previous_song', methods=['POST'])
+@login_required
 def previous_song():
     global current_song 
     current_song -= 1
@@ -400,6 +429,7 @@ con.close()
 
 
 @app.route('/download', methods=['POST'])
+@login_required
 def download():
     global ids
     output_dir = os.path.join(os.getcwd(), "downloads")
@@ -442,6 +472,7 @@ def download():
 
 
 @app.route('/show_downloads', methods=['GET'])
+@login_required
 def show_downloads():
     global ids
     return render_template('list_downloads.html', ids=ids)
@@ -451,6 +482,7 @@ def show_downloads():
 
 
 @app.route('/play_downloads', methods=['POST', 'GET'])
+@login_required
 def play_downloads():
     global ids
     output_dir = os.path.join(os.getcwd(), "downloads")
@@ -472,6 +504,7 @@ def play_downloads():
 
 
 @app.route('/downloads/<filename>')
+@login_required
 def download_file(filename):
     return send_from_directory('downloads', filename)
 
@@ -480,7 +513,126 @@ def download_file(filename):
 
 
 
+@app.route('/chatgpt', methods=['POST', 'GET'])
+@login_required
+def chatgpt():
+    if request.method == 'POST':
+        user_i =  request.form.get('chat_gpt_input')
 
+
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if api_key is None:
+        raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+    client = anthropic.Anthropic(api_key=api_key)
+
+    message = client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=1000,
+        temperature=0,
+        system="You are a music suggestion model. For the user input, please suggest a song, album or podcast that you think the user would like. Return only the name of the song/album/podcast. The content shouls be available on YT Music.",
+        messages=[
+            {
+                "role": "user", 
+                "content": [{"type": "text", "text": user_i}]
+            }
+        ]
+    )
+
+    suggestion = message.content[0].text
+    return render_template('search.html', response=suggestion)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#session
+class User(UserMixin):
+    def __init__(self, id, email):
+        self.id = id
+        self.email = email
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = sqlite3.connect('songs.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, email FROM login WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        return User(id=user[0], email=user[1])
+    return None
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm = request.form.get('confirm')
+        
+        conn = sqlite3.connect('songs.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM login WHERE email = ?", (email,))
+        rows = cursor.fetchall()
+        
+        if len(rows) > 0:
+            return render_template("register.html", error="Email used")
+        if len(password) < 8:
+            return render_template("register.html", error="Password must contain at least 8 characters")
+        if password != confirm:
+            return render_template("register.html", error="Passwords do not match")
+        
+        cursor.execute("INSERT INTO login (email, password) VALUES (?, ?)", (email, password))
+        conn.commit()
+        conn.close()
+        return redirect('/login')
+    return render_template("register.html")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        conn = sqlite3.connect('songs.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email, password FROM login WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user is None:
+            return render_template("login.html", error="Email not found")
+        if user[2] != password:
+            return render_template("login.html", error="Password incorrect")
+
+        user_obj = User(id=user[0], email=user[1])
+        login_user(user_obj)
+        return redirect('/')
+
+    return render_template("login.html")
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+#end session
+
+
+
+#add websockets for live comments
+#add login and register system
+#radio via https://pypi.org/project/radio/
 
 
 

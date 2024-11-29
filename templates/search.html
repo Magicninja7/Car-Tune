@@ -19,6 +19,23 @@
       JavaScript:
       - On window load, the page scrolls down by 560 pixels if the window width is greater than 768 pixels, otherwise it scrolls down by 200 pixels.
     -->
+    <form action="/chatgpt" method="POST" class="aligned-form">
+      <div class="container aligned-form">
+          <input type="text" name="chat_gpt_input" placeholder="Ask AI for a song" class="iinput">
+          <button type="submit" class="buttonpro">
+              <span>Ask</span>
+          </button>
+      </div>
+  </form>
+  <form action="/chatgpt" method="GET" class="aligned-form">
+      <div class="dynamic-black-field">{{ response }}</div>
+  </form>
+
+
+
+
+
+
     <form action="/search" method="post" class="centerr">
         <input placeholder="Search for songs..." class="iinput" name="query" type="text">
         <button type="submit" class="buttonpro">
@@ -65,6 +82,20 @@
 
 
 <style>
+  .aligned-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  .dynamic-black-field {
+    background-color: black;
+    color: white; /* Text color */
+    padding: 10px; /* Padding around the text */
+    display: inline-block; /* Make the div size to its content */
+    border-radius: 5px; /* Optional: rounded corners */
+  } 
+
   .coloor {
     margin-top: 1rem;
     margin-bottom: 5;
