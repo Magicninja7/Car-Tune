@@ -6,19 +6,19 @@
 
 <h2>Project Screenshots:</h2>
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/0screenshot__30_.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/0screenshot__30_.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/1screenshot__32_.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/1screenshot__32_.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/2screenshot_2024-11-03_194521.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/2screenshot_2024-11-03_194521.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/3screenshot_2024-11-06_203443.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/3screenshot_2024-11-06_203443.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/4screenshot_2024-11-06_203644.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/4screenshot_2024-11-06_203644.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/5screenshot_2024-11-30_151146.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/5screenshot_2024-11-30_151146.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/6screenshot_2024-11-30_151156.png" alt="project-screenshot" width="1920" height="1080/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/6screenshot_2024-11-30_151156.png" alt="project-screenshot" width="1920" height="400/">
 
   
   
