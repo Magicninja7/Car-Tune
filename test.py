@@ -1,25 +1,42 @@
-import anthropic
-import os
+# pylint: disable=W0621
+"""Asynchronous Python client for the Radio Browser API."""
 
-api_key = os.getenv("ANTHROPIC_API_KEY")
-if api_key is None:
-    raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+import asyncio
 
-client = anthropic.Anthropic(api_key=api_key)
+from radios import FilterBy, Order, RadioBrowser
 
-message = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
-    max_tokens=1000,
-    temperature=0,
-    system="You are a world-class poet. Respond only with short poems.",
-    messages=[
-        {
-            "role": "user", 
-            "content": [{"type": "text", "text": "Why is the ocean salty?"}]
-        }
-    ]
-)
 
-# Get and print the poem
-poem = message.content[0].text
-print(poem)
+async def main() -> None:
+    """Show example on how to query the Radio Browser API."""
+    async with RadioBrowser(user_agent="MyAwesomeApp/1.0.0") as radios:
+        # Print top 10 stations
+        stations = await radios.stations(
+            limit=10, order=Order.CLICK_COUNT, reverse=True
+        )
+        for station in stations:
+            print(f"{station.name} ({station.click_count})")
+
+        print(await radios.station(uuid="9608b51d-0601-11e8-ae97-52543be04c81"))
+
+        # Print top 10 stations in a country
+        stations = await radios.stations(
+            limit=10,
+            order=Order.CLICK_COUNT,
+            reverse=True,
+            filter_by=FilterBy.COUNTRY_CODE_EXACT,
+            filter_term="NL",
+        )
+        for station in stations:
+            print(f"{station.name} ({station.click_count})")
+
+        # Register a station "click"
+        await radios.station_click(uuid="9608b51d-0601-11e8-ae97-52543be04c81")
+
+        # Tags, countries and codes.
+        print(await radios.tags(limit=10, order=Order.STATION_COUNT, reverse=True))
+        print(await radios.countries(limit=10, order=Order.NAME))
+        print(await radios.languages(limit=10, order=Order.NAME))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

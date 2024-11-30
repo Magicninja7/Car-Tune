@@ -19,10 +19,11 @@ conn = sqlite3.connect('songs.db')
 cursor = conn.cursor()
 
 create_table_query = """
-CREATE TABLE login (
+CREATE TABLE stats (
     id INTEGER PRIMARY KEY,
     email TEXT NOT NULL,
-    password TEXT NOT NULL
+    listened INTEGER NOT NULL,
+    moods TEXT NOT NULL
 );
 """
 

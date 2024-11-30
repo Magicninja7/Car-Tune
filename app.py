@@ -13,6 +13,7 @@ import anthropic
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
+
 ytmusic = YTMusic("oauth.json")
 app = Flask(__name__)
 
@@ -106,7 +107,24 @@ def main():
                 "index": current_song
             })
         else:
-            current_song = int(place)    
+            current_song = int(place)  
+
+        
+        con = sqlite3.connect("songs.db")
+        cursor = con.cursor()
+        data = cursor.execute("SELECT listened FROM stats WHERE email = ?", (current_user.email,)).fetchone()
+        listened = data[0] + 1
+        cursor.execute("UPDATE stats SET listened = ? WHERE email = ?", (listened, current_user.email))
+        con.commit()
+        con.close()
+
+        
+
+
+
+
+
+
 
 
         return redirect(url_for('play', videoId=videoId, title=title, thumbnail=thumbnail, index=current_song))
@@ -631,7 +649,7 @@ def logout():
 
 
 #add websockets for live comments
-#radio via https://pypi.org/project/radio/
+#radio via https://pypi.org/project/radios/
 #music stats
 #reccomendation system, based on last played songs
 #context aware - suggest music based on user location; time of day; weather; etc
@@ -645,8 +663,6 @@ def logout():
 #equalizer (maybe with ai)
 #album art generator (ai)
 #audio analasis (python + ai)
-
-
 
 
 
