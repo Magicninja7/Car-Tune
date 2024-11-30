@@ -1,20 +1,24 @@
-<h1 align="center" id="title">Car Tune</h1>
+<h1 align="center" id="title">CarTune</h1>
 
-<p align="center"><img src="https://cloud-hdrgisryx-hack-club-bot.vercel.app/0image.png" alt="project-image"></p>
+<p align="center"><img src="https://socialify.git.ci/Magicninja7/Car-Tune/image?font=Jost&amp;language=1&amp;name=1&amp;owner=1&amp;pattern=Circuit%20Board&amp;stargazers=1&amp;theme=Dark" alt="project-image"></p>
 
-<p id="description">A portable music player and controller built using a Raspberry Pi Zero and touchscreen inspired by Spotify's "Car Thing." Car-Tune integrates with a YouTube Music account offering in-car or speaker Bluetooth connectivity providing users a streamlined music experience while on the go.</p>
+<p id="description">The Car Thing Website is a feature-rich AI-powered music platform designed to enhance your music experience on the go. Built with a sleek user-friendly interface the website acts as a portable music hub seamlessly integrating with your YouTube Music account.</p>
 
 <h2>Project Screenshots:</h2>
 
-<<<<<<< HEAD
-<img src="https://cloud-lolm1r6cz-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="400" height="400/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/0screenshot__30_.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-4zidvul47-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="400" height="400/">
-=======
-<img src="https://cloud-lolm1r6cz-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="1500" height="400/">
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/1screenshot__32_.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-4zidvul47-hack-club-bot.vercel.app/0image.png" alt="project-screenshot" width="1500" height="400/">
->>>>>>> e53bfe706d5a71aa657b4736fa41a0a3786ad8e9
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/2screenshot_2024-11-03_194521.png" alt="project-screenshot" width="1920" height="400/">
+
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/3screenshot_2024-11-06_203443.png" alt="project-screenshot" width="1920" height="400/">
+
+<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/4screenshot_2024-11-06_203644.png" alt="project-screenshot" width="1920" height="400/">
+
+<img src="https://cloud-gkhdfpd3h-hack-club-bot.vercel.app/0screenshot_2024-11-30_151146.png" width="1920" height="400/">
+
+<img src="https://cloud-gkhdfpd3h-hack-club-bot.vercel.app/1screenshot_2024-11-30_151156.png" alt="project-screenshot" width="1920" height="400/">
 
   
   
@@ -22,36 +26,35 @@
 
 Here're some of the project's best features:
 
-*   YouTube Music Integration: Access your YouTube Music library including playlists albums and recommendations.
-*   Touchscreen Control: Navigate playback using a 3.5" touchscreen display with intuitive play pause next and previous controls.
-*   Bluetooth Connectivity: Stream music to car audio or Bluetooth speakers seamlessly.
-*   Portable Design: Compact easy-to-install setup using a Raspberry Pi Zero.
-*   User-Friendly Interface: Clean and minimal UI optimized for in-car use reducing distractions.
-*   Support for creating your own libraries
-*   Song queue
-*   Skips over to next song
-*   Option to download songs
-
-
+*   Get smart song and playlist recommendations based on your mood listening habits or specific occasions.
+*   Context-aware suggestions tailor your experience to the time of day weather or activity.
+*   Customize your audio with a built-in equalizer that lets you tweak sound settings for the perfect listening experience.
+*   Engage with a live comments section ideal for sharing real-time thoughts about songs or playlists with other users.
+*   Visualize audio characteristics such as beats tempo and frequency patterns with dynamic real-time analysis tools.
+*   See detailed stats about the music you’re playing from emotional tone to technical breakdowns.
+*   Discover new albums genres and artists with curated recommendations powered by Claude.
+*   Options for themed designs abstract patterns or mood-inspired visuals.
+*   Create stunning custom album art for your playlists using AI making your music collection truly unique.
+*   Effortlessly build mood-based or transitional playlists for smooth shifts between energetic and relaxing vibes.
 
 <h2>🛠️ Installation Steps:</h2>
 
-<p>1. Clone the Repository</p>
+<p>1. Install libraries</p>
 
 ```
-git clone https://github.com/Magicninja7/Car-Tune.git
+pip install ytmusicapi flask_socketio flask flask_login yt_dlp anthropic
 ```
 
-<p>2. Enter the directory</p>
+<p>2. Pull the repo</p>
+
+```
+git pull https://github.com/Magicninja7/Car-Tune.git
+```
+
+<p>3. Enter directory</p>
 
 ```
 cd Car-Tune
-```
-
-<p>3. Install libraries</p>
-
-```
-pip install ytmusicapi yt-dlp
 ```
 
 <p>4. Run!</p>
@@ -60,30 +63,18 @@ pip install ytmusicapi yt-dlp
 python app.py
 ```
 
-<h2>🍰 Contribution Guidelines:</h2>
-
-Fork the repository create a new feature branch make your changes and test thoroughly. Submit a pull request with a clear description of your changes.
-
   
   
 <h2>💻 Built with</h2>
 
 Technologies used in the project:
 
-*   Python
+*   YT\_dlp
+*   WebSocket
+*   YTmusic Api
 *   Flask
-*   HTML
-*   CSS
-*   JS
-*   YTmusic api
-
-<h2> 👀Easter eggs👀 </h2>
-*   Can you find 2 easter eggs?
+*   Claude
 
 <h2>🛡️ License:</h2>
 
-<<<<<<< HEAD
-This project is licensed under the MIT License
-=======
-This project is licensed under the MIT License
->>>>>>> e53bfe706d5a71aa657b4736fa41a0a3786ad8e9
+This project is licensed under the MIT
