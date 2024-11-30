@@ -16,9 +16,9 @@
 
 <img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/4screenshot_2024-11-06_203644.png" alt="project-screenshot" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/5screenshot_2024-11-30_151146.png" alt="project-screenshot" width="1920" height="400/">
+<img src="https://cloud-gkhdfpd3h-hack-club-bot.vercel.app/0screenshot_2024-11-30_151146.png" width="1920" height="400/">
 
-<img src="https://cloud-evh9xqi9s-hack-club-bot.vercel.app/6screenshot_2024-11-30_151156.png" alt="project-screenshot" width="1920" height="400/">
+<img src="https://cloud-gkhdfpd3h-hack-club-bot.vercel.app/1screenshot_2024-11-30_151156.png" alt="project-screenshot" width="1920" height="400/">
 
   
   
