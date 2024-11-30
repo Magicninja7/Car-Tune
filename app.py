@@ -13,8 +13,7 @@ import anthropic
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
-
-ytmusic = YTMusic("oauth.json")
+ytmusic = YTMusic("browser.json")
 app = Flask(__name__)
 
 
@@ -109,24 +108,42 @@ def main():
         else:
             current_song = int(place)  
 
-        
+        #stats beggining
         con = sqlite3.connect("songs.db")
         cursor = con.cursor()
         data = cursor.execute("SELECT listened FROM stats WHERE email = ?", (current_user.email,)).fetchone()
-        listened = data[0] + 1
+        if data is None or data[0] is None:
+            listened = 1
+        else:
+            listened = int(data[0]) + 1
         cursor.execute("UPDATE stats SET listened = ? WHERE email = ?", (listened, current_user.email))
+
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if api_key is None:
+            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1000,
+            temperature=0,
+            system="Given a song title, give what mood the song is in. Return only the mood of the song.",
+            messages=[
+                {
+                    "role": "user", 
+                    "content": [{"type": "text", "text": title}]
+                }
+            ]
+        )
+        mood = message.content[0].text
+
+        # Ensure that 'listened' has a value before inserting
+        listened = 0  # or any appropriate default value
+        cursor.execute("INSERT INTO stats (moods, email, listened) VALUES (?, ?, ?)", (mood, current_user.email, listened))
         con.commit()
         con.close()
+        #stats end
 
         
-
-
-
-
-
-
-
-
         return redirect(url_for('play', videoId=videoId, title=title, thumbnail=thumbnail, index=current_song))
     
     return render_template('search.html')
@@ -257,6 +274,9 @@ def libraries():
         FROM sqlite_master
         WHERE type='table'
         AND name != 'songs'
+        AND name != 'stats'
+        AND name != 'login'
+        AND name != 'ids'
     """)
     tables = cursor.fetchall()
     table_names = [table[0] for table in tables]
@@ -451,6 +471,8 @@ con.close()
 def download():
     global ids
     output_dir = os.path.join(os.getcwd(), "downloads")
+    print(ids)
+    print(output_dir)
 
     videoid = request.form.get('videoid_d')
     title = request.form.get('title_d')
@@ -459,33 +481,42 @@ def download():
     if not url:
         return "URL not provided", 400
     if videoid not in [item['videoid'] for item in ids]:
-        response = requests.get(url, stream=True)
-        output_path = os.path.join(output_dir, f"{videoid}.mp3")
-        with open(output_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=1024):
-                f.write(chunk)
-            video_details = ytmusic.get_song(videoid)["videoDetails"]
-            if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
-                thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
-            else:
-                microformat = ytmusic.get_song(videoid)["microformat"]["microformatDataRenderer"]
-                if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
-                    thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
-            ids.append({
-                "videoid": videoid,
-                "title": title,
-                "thumbnail": thumbnail
-            })
+        retries = 3
+        for attempt in range(retries):
+            try:
+                response = requests.get(url, stream=True)
+                response.raise_for_status()
+                output_path = os.path.join(output_dir, f"{videoid}.mp3")
+                with open(output_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=1024):
+                        f.write(chunk)
+                video_details = ytmusic.get_song(videoid)["videoDetails"]
+                if video_details.get("thumbnail") and video_details["thumbnail"].get("thumbnails"):
+                    thumbnail = video_details["thumbnail"]["thumbnails"][-1]["url"]
+                else:
+                    microformat = ytmusic.get_song(videoid)["microformat"]["microformatDataRenderer"]
+                    if microformat.get("thumbnail") and microformat["thumbnail"].get("thumbnails"):
+                        thumbnail = microformat["thumbnail"]["thumbnails"][-1]["url"]
+                ids.append({
+                    "videoid": videoid,
+                    "title": title,
+                    "thumbnail": thumbnail
+                })
 
-            con = sqlite3.connect("songs.db")
-            cursor = con.cursor()
-            cursor.execute('''
-                INSERT INTO ids (videoid, title, thumbnail)
-                VALUES (?, ?, ?)
-            ''', (videoid, title, thumbnail))
-            con.commit()
-            con.close()
-    return redirect('/libraries')
+                con = sqlite3.connect("songs.db")
+                cursor = con.cursor()
+                cursor.execute('''
+                    INSERT INTO ids (videoid, title, thumbnail)
+                    VALUES (?, ?, ?)
+                ''', (videoid, title, thumbnail))
+                con.commit()
+                con.close()
+                break  # Exit the retry loop if successful
+            except requests.exceptions.RequestException as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                if attempt == retries - 1:
+                    return "Failed to download the file after multiple attempts", 500
+    return redirect('/show_downloads')
 
 
 
@@ -547,7 +578,7 @@ def chatgpt():
         model="claude-3-5-sonnet-20241022",
         max_tokens=1000,
         temperature=0,
-        system="You are a music suggestion model. For the user input, please suggest a song, album or podcast that you think the user would like. Return only the name of the song/album/podcast. The content shouls be available on YT Music.",
+        system="You are a music suggestion model. For the user input, please suggest a song, album or podcast that you think the user would like. Return only the title of the song/album/podcast. The content shouls be available on YT Music.",
         messages=[
             {
                 "role": "user", 
@@ -558,18 +589,6 @@ def chatgpt():
 
     suggestion = message.content[0].text
     return render_template('search.html', response=suggestion)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #session
@@ -648,9 +667,23 @@ def logout():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #add websockets for live comments
 #radio via https://pypi.org/project/radios/
-#music stats
 #reccomendation system, based on last played songs
 #context aware - suggest music based on user location; time of day; weather; etc
 
