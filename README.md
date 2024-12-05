@@ -57,6 +57,12 @@ git pull https://github.com/Magicninja7/Car-Tune.git
 cd Car-Tune
 ```
 
+<p>5. Create your oauth </p>
+
+'''
+follow the steps here: https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html
+'''
+
 <p>4. Run!</p>
 
 ```
