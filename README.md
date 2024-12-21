@@ -27,10 +27,7 @@
 Here're some of the project's best features:
 
 *   Get smart song and playlist recommendations based on your mood listening habits or specific occasions.
-*   Context-aware suggestions tailor your experience to the time of day weather or activity.
-*   Customize your audio with a built-in equalizer that lets you tweak sound settings for the perfect listening experience.
 *   Engage with a live comments section ideal for sharing real-time thoughts about songs or playlists with other users.
-*   Visualize audio characteristics such as beats tempo and frequency patterns with dynamic real-time analysis tools.
 *   See detailed stats about the music you’re playing from emotional tone to technical breakdowns.
 *   Discover new albums genres and artists with curated recommendations powered by Claude.
 *   Options for themed designs abstract patterns or mood-inspired visuals.

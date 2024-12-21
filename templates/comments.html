@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<div id="comments-page">
+    <div id="comments-header">
+        <h2>Comments</h2>
+    </div>
+    <div id="bubble-area">
+        <ul id="comments-list"></ul>
+    </div>
+    <div id="input-area">
+        <input type="hidden" id="username" value="{{ username }}">
+        <input type="text" id="comment" placeholder="Your Comment">
+        <button id="send">Send</button>
+    </div>
+</div>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        const commentInput = document.getElementById('comment');
+        const usernameInput = document.getElementById('username');
+        const commentsList = document.getElementById('comments-list');
+        const sendButton = document.getElementById('send');
+
+        sendButton.addEventListener('click', () => {
+            const comment = commentInput.value;
+            const username = usernameInput.value;
+            if (comment && username) {
+                socket.emit('send_comment', { comment, username });
+                commentInput.value = '';
+            }
+        });
+
+        socket.on('receive_comment', (data) => {
+            const li = document.createElement('li');
+            li.textContent = `${data.username}: ${data.comment}`;
+            commentsList.appendChild(li);
+        });
+    </script>
+    <style>
+        #comments-page {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            height: calc(100vh - 50px); /* Nav bar offset */
+            overflow: hidden;
+            background-color: #6c1010;
+            color: #fff;
+            }
+
+            #comments-header {
+            grid-row: 1 / 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #5e0303;
+            margin: 0;
+            padding: 1rem;
+            font-size: 1.5rem;
+            }
+
+            #bubble-area {
+            grid-row: 2 / 6;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            }
+
+            #comments-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            }
+
+            #comments-list li {
+            background-color: #333;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            max-width: 60%;
+            word-wrap: break-word;
+            }
+
+            #input-area {
+            grid-row: 6 / 7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #5e0303;
+            padding: 1rem;
+            }
+
+            #input-area input[type="text"] {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            margin-right: 0.5rem;
+            padding: 0.5rem;
+            }
+
+            #input-area button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            }
+    </style>
+{% endblock %}

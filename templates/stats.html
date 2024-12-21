@@ -1,11 +1,28 @@
 {% extends "layout.html" %}
 
 {% block main %}
-
-<p>{{ data['listened'] }}</p>
-{% for mood in data['mood'] %}
-    <p>{{ mood }}</p>
-{% endfor %}
-
-{% endblock}
+    <header>
+        <h1>Stats</h1>
+    </header>
+    <main>
+        {% if data == 'no data' %}
+        <div class="no-data">
+            <p>No data</p>
+        </div>
+        {% else %}
+        <section>
+            <h2>Your Favorite Mood</h2>
+            <p>{{ mood }}</p>
+        </section>
+        <section>
+            <h2>Explanation</h2>
+            <p>{{ exp }}</p>
+        </section>
+        <section>
+            <h2>Total Songs Listened</h2>
+            <p>{{ listened }}</p>
+        </section>
+        {% endif %}
+    </main>
+{% endblock %}
 

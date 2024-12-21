@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+{% block main %}
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    {% if recc_s %}
+                    <div class="card-header bg-primary text-white">
+                        Recommended Song: {{ recc_s.split('#')[0] }}
+                    </div>
+                    {% else %}
+                        <p>No recommendation available.</p>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="text-center mb-4">
+                    <h1>Proposed playlist</h1>
+                </div>
+                <div class="text-center mb-4">
+                    <img src="{{ album_img }}" alt="Album" class="img-fluid rounded shadow" style="max-width: 100%; height: auto;">
+                </div>
+                <div>
+                    <h3>Tracks</h3>
+                    <ul class="list-group">
+                        <p class="list-group-item">Album: {{ album }}</p>
+                        {% for song, artist in album %}
+                        <li class="list-group-item">
+                            <strong>{{ loop.index }}.</strong> {{ song }} <span class="text-muted">by {{ artist }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <form action="/add_ai" method="POST" class="mt-4">
+                    <input type="hidden" name="album" value="{{ album }}">
+                    <input name="playlist_name" type="text" class="form-control" placeholder="Playlist name" required>
+                    <button type="submit" class="btn btn-primary">Add Playlist</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+{% endblock %}

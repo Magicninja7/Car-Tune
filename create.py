@@ -24,6 +24,7 @@ CREATE TABLE stats (
     email TEXT NOT NULL,
     listened INTEGER NOT NULL,
     moods TEXT NOT NULL
+    title TEXT NOT NULL
 );
 """
 

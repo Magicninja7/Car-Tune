@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block main %}
+    <h1>Radio Player</h1>
+    <div id="stations">
+        {% for station in stations %}
+            <div>
+                <p>{{ station.name }}</p>
+                <button onclick="playStation('{{ station.url }}')">Play</button>
+            </div>
+        {% endfor %}
+    </div>
+    <audio id="radioPlayer" controls>
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        const radioPlayer = document.getElementById('radioPlayer');
+
+        function playStation(url) {
+            fetch('/radio/play', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    radioPlayer.src = data.url;
+                    radioPlayer.play();
+                } else {
+                    console.error('Error playing station:', data.error);
+                }
+            })
+            .catch(error => console.error('Fetch error:', error));
+        }
+    </script>
+{% endblock %}

@@ -4,13 +4,17 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 import requests
 import yt_dlp
 import json
-import os
 import re
 from builtins import zip
 from openai import OpenAI
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO, emit
 import anthropic
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+import numpy as np
+import scipy.signal as signal
+import soundfile as sf
+import os
+
 
 
 ytmusic = YTMusic("browser.json")
@@ -25,33 +29,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+socketio = SocketIO(app)
 
-
-
-'''
-This module provides a Flask web application for interacting with YouTube Music. It allows users to search for songs,
-play videos, view library albums, and manage a local SQLite database of songs.
-Modules:
-    sqlite3: A module for interacting with SQLite databases.
-    ytmusicapi: A module for interacting with YouTube Music API.
-    flask: A micro web framework for Python.
-    yt_dlp: A module for downloading videos from YouTube and other video platforms.
-Functions:
-    main(): Handles the main route for the web application. Processes both GET and POST requests.
-    play(): Handles the '/play/' route to play a video. Retrieves video details and generates a streaming URL.
-    get_streaming_url(video_id): Generates a streaming URL for a given video ID using yt_dlp.
-    search(): Handles the '/search' route to search for songs on YouTube Music.
-    next_song(): Handles the '/next' route to display the next song from the local database.
-    hihihiha(): Handles the '/songs_albums' route to display songs from a specific album.
-    libraries(): Handles the '/libraries' route to display the user's library albums.
-    delete(): Handles the '/delete' route to delete all songs from the local database.
-Templates:
-    search.html: Template for the search page.
-    main.html: Template for the main video playback page.
-    next.html: Template for displaying the next song.
-    songs_albums.html: Template for displaying songs from a specific album.
-    libraries.html: Template for displaying library albums.
-'''
 
 downloaded = []
 
@@ -111,12 +90,11 @@ def main():
         #stats beggining
         con = sqlite3.connect("songs.db")
         cursor = con.cursor()
-        data = cursor.execute("SELECT listened FROM stats WHERE email = ?", (current_user.email,)).fetchone()
-        if data is None or data[0] is None:
-            listened = 1
+        data = cursor.execute("SELECT listened FROM stats WHERE email = ?", (current_user.email,)).fetchall()
+        if data:
+            listened = max(map(int, [row[0] for row in data])) + 1
         else:
-            listened = int(data[0]) + 1
-        cursor.execute("UPDATE stats SET listened = ? WHERE email = ?", (listened, current_user.email))
+            listened = 1
 
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if api_key is None:
@@ -126,18 +104,17 @@ def main():
             model="claude-3-5-sonnet-20241022",
             max_tokens=1000,
             temperature=0,
-            system="Given a song title, give what mood the song is in. Return only the mood of the song.",
+            system="Given a song title and its videoid (to identify it more precisely), give what mood the song is in. Return only the mood of the song. If you don't know the song, return 'neutral'.",
             messages=[
                 {
                     "role": "user", 
-                    "content": [{"type": "text", "text": title}]
+                    "content": [{"type": "text", "text": f'Title: "{title}", Id: "{videoId}"'}]
                 }
             ]
         )
         mood = message.content[0].text
 
-        # Ensure that 'listened' has a value before inserting
-        listened = 0  # or any appropriate default value
+
         cursor.execute("INSERT INTO stats (moods, email, listened) VALUES (?, ?, ?)", (mood, current_user.email, listened))
         con.commit()
         con.close()
@@ -266,7 +243,7 @@ def hihihiha():
 @app.route('/libraries', methods=["GET"])
 @login_required
 def libraries():
-    albums = ytmusic.get_library_albums(limit=24)
+    albums = ''
     con = sqlite3.connect("songs.db")
     cursor = con.cursor()
     cursor.execute("""
@@ -578,7 +555,7 @@ def chatgpt():
         model="claude-3-5-sonnet-20241022",
         max_tokens=1000,
         temperature=0,
-        system="You are a music suggestion model. For the user input, please suggest a song, album or podcast that you think the user would like. Return only the title of the song/album/podcast. The content shouls be available on YT Music.",
+        system="You are a music suggestion model. For the user input, please suggest a song, album or podcast that you think the user would like. Return only the title of the song/album/podcast. The content shouls be available on YT Music. Return only the title. No author.",
         messages=[
             {
                 "role": "user", 
@@ -589,6 +566,8 @@ def chatgpt():
 
     suggestion = message.content[0].text
     return render_template('search.html', response=suggestion)
+
+
 
 
 #session
@@ -647,6 +626,9 @@ def login():
         user = cursor.fetchone()
         conn.close()
 
+
+
+
         if user is None:
             return render_template("login.html", error="Email not found")
         if user[2] != password:
@@ -665,42 +647,212 @@ def logout():
     return redirect(url_for('login'))
 #end session
 
+#socket
+@app.route('/comments')
+@login_required
+def comments_page():
+    username = current_user.email
+    return render_template('comments.html', username=username)
+
+
+@socketio.on('send_comment')
+@login_required
+def handle_comment(data):
+    comment = data['comment']
+    username = current_user.email
+    emit('receive_comment', {'username': username, 'comment': comment}, broadcast=True)
+#endsocket
+
+#radio
+@app.route('/radio')
+@login_required
+def radio():
+    stations = [
+        {"name": "EskaRock (Warsaw)", "url": "https://waw.ic.smcdn.pl/5380-1.mp3"},
+        {"name": "BBC radio 1 (UK)", "url": "https://as-hls-ww.live.cf.md.bbci.co.uk/pool_904/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio%3d96000.norewind.m3u8"},
+        {"name": "NPR Illanois (central USA)", "url": "http://war.str3am.com:7780/wuis.mp3"},
+        {"name": "Radio ZET (Poland)", "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO_ZET.mp3"},
+        {"name": "RMF FM (Poland)", "url": "https://rmf-live-01.cdn.eurozet.pl/rmf_fm"},
+        {"name": "India Today (India)", "url": "https://cdnstream1.com/4529_128_2.mp3"},
+        {"name": "WGNA (ALbany)", "url": "https://live.amperwave.net/direct/townsquare-wgnafmmp3-ibc3.mp3&source=ts-tunein"},
+        {"name": "RMF classic (Poland)", "url": "http://www.rmfon.pl/rmfclassic.pls"},
+    ]
+    return render_template('radio.html', stations=stations)
+
+@app.route('/radio/play', methods=['POST'])
+def play_radio():
+    station_url = request.json.get('url')
+    if not station_url:
+        return jsonify({"error": "No station URL provided"}), 400
+    return jsonify({"message": "Playing station", "url": station_url})
+#endradio
 
 
 
+#stats
+@app.route('/stats', methods=['POST'])
+@login_required
+def stats():
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    data = cursor.execute("SELECT moods, listened FROM stats WHERE email = ?", (current_user.email,)).fetchall()
+    dat = cursor.execute("SELECT listened FROM stats WHERE email = ?", (current_user.email,)).fetchall()
+    if dat:
+        listened = max(map(int, [row[0] for row in dat]))
+    else:
+        return render_template('stats.html', data='no data')
+    con.close()
 
 
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if api_key is None:
+        raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+    client = anthropic.Anthropic(api_key=api_key)
+    message = client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=1000,
+        temperature=0,
+        system="You will be given the amount of listened songs, and you need to return what songs mood does the user like listening to. Return also your explenation, but in a user-friendly way, so he can understand it. The explanation should start with '#'. Dont use '#' anywhere else. Good luck!",
+        messages=[
+            {
+                "role": "user", 
+                "content": [{"type": "text", "text": data}]
+            }
+        ]
+    )
+    stat = message.content[0].text
+    exp = 0
+    status = False
+    for i in stat:
+        if i == '#':
+            status = True
+            continue
+        if status == True:
+            exp += i
+        else:
+            mood += i
+
+    return render_template('stats.html', mood=stat, exp=exp, listened=listened)
+#endstats
+
+#ai
+@app.route('/ai', methods=['GET', 'POST'])
+@login_required
+def ai_sugg():
+    if request.method == 'GET':
+        a = 'Grenade'
+        b = [('Count on me', 'Bruno Mars'), ('Understand', 'BoyWithUke'), ('Holiday', 'Green Day'), ('Boulevard of broken dreams', 'Green Day')]
+        c = 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-nkdO4LrG4s9ckJRvy7geYZuU/user-iUtxn47ufVWicYETk7ZChkLJ/img-wQBlfxSlnG738yuEsP9jSjlp.png?st=2024-12-20T12%3A58%3A04Z&se=2024-12-20T14%3A58%3A04Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-12-20T00%3A31%3A50Z&ske=2024-12-21T00%3A31%3A50Z&sks=b&skv=2024-08-04&sig=WrX6wysCh7ufL5ZNOtItxKIaClYfDiTbJ90QuhXU5xA%3D'
+        return render_template('ai.html', recc_s=a, album=b, album_img=c, zip=zip)
+
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    dat = cursor.execute("SELECT listened FROM stats WHERE email = ?", (current_user.email,)).fetchall()
+    con.close()
+    if dat:
+        listened = max(map(int, [row[0] for row in dat]))
+        bracket = listened - 10
+    else:
+        bracket = 0
+
+    def recc_song(bracket):
+        con = sqlite3.connect("songs.db")
+        cursor = con.cursor()
+        data = cursor.execute("SELECT moods, title FROM stats WHERE email = ? AND listened > ?", (current_user.email, bracket)).fetchall()
+        con.close()
+        # API key and client setup
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1000,
+            temperature=0,
+            system="Based on the mood and title of songs, give a recommendation of a song that the user would like. Return only the title of the song, and its author. Remember, title AND author Divide them by a '#'.",
+            messages=[{"role": "user", "content": [{"type": "text", "text": data}]}],
+        )
+        return message.content[0].text
+
+    def create_album():
+        con = sqlite3.connect("songs.db")
+        cursor = con.cursor()
+        data = cursor.execute("SELECT moods, title FROM stats WHERE email = ?", (current_user.email,)).fetchall()
+        con.close()
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1000,
+            temperature=0,
+            system="Based on the mood and title of songs, song recommendations that the user would like. Return 20 - 30 song titles, divided by #. Return the titles of the songs, and their authors. Remember, title AND author.",
+            messages=[{"role": "user", "content": [{"type": "text", "text": data}]}],
+        )
+        return message.content[0].text
+
+    def album_image(songs):
+        client = OpenAI()
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=f"A album cover for a album with these songs: {songs}. The album photo should be based on on one of these artistic trends: surrealism, minimalism, Art Nouveau, Digital Art/Glitch Art, Geometric Abstraction.",
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+        return response.data[0].url
+
+    recc_s = recc_song(bracket)
+    album = create_album()
+    album_parts = album.split('#')
+    songs = album_parts[0::2]
+    artists = album_parts[1::2]
+    album_tuple = (songs, artists)
+    album_img = album_image(album)
+
+    return render_template('ai.html', recc_s=recc_s, album=album_tuple, album_img=album_img, zip=zip)
+#endai
 
 
+#addaiplaylist
+@app.route('/add_ai', methods=['POST'])
+@login_required
+def addai():
+    album = request.form.get('album')
+    songs = album[0]
+    artists = album[1]    
 
+    print(songs)
+    print(artists)
+    playlist_name = request.form.get('playlist_name')
+    videoid = []
+    for title, artist in album:
+        query = f"{title} {artist}"
+        results = ytmusic.search(query, filter="songs")
+        o = results[0]['videoId']
+        videoid.append(o)
 
+    full_album = songs, artists, videoid
 
+    con = sqlite3.connect("songs.db")
+    cursor = con.cursor()
+    create_table_query = f"""
+    CREATE TABLE {playlist_name} (
+        place INTEGER PRIMARY KEY,
+        videoid INTEGER NOT NULL,
+        title TEXT NOT NULL
+    );
+    """
+    cursor.execute(create_table_query)
 
-
-
-
-
-
-
-#add websockets for live comments
-#radio via https://pypi.org/project/radios/
-#reccomendation system, based on last played songs
-#context aware - suggest music based on user location; time of day; weather; etc
-
-#dynamic theme, based on music
-#music while browsing in website
-#soundscape integration (rain, fireplace, thunderstorm, (sounds) etc)
-
-#help suggest music and create playlist etc (ai)
-#mood and lyric tracking, for better suggestions (ai)
-#equalizer (maybe with ai)
-#album art generator (ai)
-#audio analasis (python + ai)
+    for a, b, c in full_album:
+        cursor.execute(f"INSERT INTO {playlist_name} (videoid, title) VALUES (?, ?)", (b, a))
+    con.commit()
+    con.close()
+    return redirect("/libraries")
+#endaddaiplaylist
 
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
 
 
  
