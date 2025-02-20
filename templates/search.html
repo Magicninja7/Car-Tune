@@ -21,12 +21,14 @@
     -->
     <form action="/chatgpt" method="POST" class="aligned-form">
       <div class="container aligned-form">
-          <input type="text" name="chat_gpt_input" placeholder="Ask AI for a song" class="iinput">
+          <input type="text" name="chat_gpt_input" placeholder="Ask AI for a song" class="iiinput">
           <button type="submit" class="buttonpro">
               <span>Ask</span>
           </button>
       </div>
   </form>
+
+
   <form action="/chatgpt" method="GET" class="aligned-form">
       <div class="dynamic-black-field">{{ response }}</div>
   </form>
@@ -36,41 +38,70 @@
 
 
 
+  <nav class="navbar2">
     <form action="/search" method="post" class="centerr">
-        <input placeholder="Search for songs..." class="iinput" name="query" type="text">
-        <button type="submit" class="buttonpro">
-            <span>Search</span>
+        <input placeholder="    Search..." class="iinput" name="query" type="text" />
+        <button type="submit" class="bbuttonpro" aria-label="Search">
+            <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
         </button>
     </form>
+</nav>
 
-    {% if results %}
-        <div class="songs-container">
-            {% for song, pic in zip(results, thumbnails) %}
-                <div class="song-item">
-                  <img src="{{ pic }}" alt="{{ song.title }}" class="thumbnail">
-                    <div class="song-info">
-                        <h3 class="title">{{ song.title }}</h3>
-                        <h4 class="coloor">{{ song['artists'][0]['name'] }}</h4>
-                        <form action="/" method="post">
-                            <input type="hidden" name="id" value="{{ song.videoId }}">
-                            <input type="hidden" name="title" value="{{ song.title }}">
-                            <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
-                            <button class="button" type="submit">Play</button>
-                        </form>
-                        <p class="duration">Duration: {{ song.duration }}</p>
-                    </div>
-                </div>
-            {% endfor %}
+
+{% if results %}
+<div class="songs-container">
+  {% for song, pic in zip(results, thumbnails) %}
+    <div class="song-item">
+      <!-- Left side thumbnail -->
+      <img src="{{ pic }}" alt="{{ song.title }}" class="thumbnail">
+
+      <div class="song-info">
+        <h3 class="title">{{ song.title }}</h3>
+        <form action="/" method="post">
+          <input type="hidden" name="id" value="{{ song.videoId }}">
+          <input type="hidden" name="title" value="{{ song.title }}">
+          <input type="hidden" name="thumbnail" value="{{ song.thumbnails[0].url if song.thumbnails else '' }}">
+          <button class="btn play actionButton" type="submit"></button>
+        </form>
+        
+      </div>
+
+      <!-- Popup on hover -->
+      <div class="popup">
+        <div class="popup-content">
+          <div class="popup-image">
+            <img src="{{ pic }}" alt="{{ song.title }}">
+          </div>
+          <div class="popup-info">
+            <h3>{{ song.title }}</h3>
+            <h4>{{ song['artists'][0]['name'] }}</h4>
+            <p class="duration">Duration: {{ song.duration }}</p>
+            <div class="holder">
+              <div class="ellipse"></div>
+              <div class="ellipse ellipse2"></div>
+            </div>
+          </div>
         </div>
-        <script>
-            window.onload = function() {
-                if (window.innerWidth > 768) {
-                    window.scrollBy(0, 560);
-                } else {
-                    window.scrollBy(0, 200);
-                }
-            }
-        </script>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+
+  <!-- Scroll script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var buttons = document.querySelectorAll('.actionButton');
+      buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          btn.classList.remove('play');
+          btn.classList.add('loading');
+        });
+      });
+    });
+  </script>
     {% endif %}
 
 
@@ -80,8 +111,317 @@
 
 
 
+<style> 
 
-<style>
+/* squickly lines :3 */
+.holder {
+  overflow: hidden;
+  position: relative;
+  width: 130px;
+  height: 50px;
+  color: gray;
+}
+
+.ellipse {
+  position: absolute;
+  background: radial-gradient(ellipse, transparent, transparent 7px, gray 7px, gray 10px, transparent 11px);
+  background-size: 36px 40px;
+  width: 130px;
+  height: 20px;
+}
+
+.ellipse2 {
+  top: 20px;
+  left: 18px;
+  background-position: 0px -20px;
+}
+
+
+/* fancy play button */
+.btn {
+  margin-left: auto; /* Push the button to the right */
+  margin-right: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: right;
+      width: 50px;
+      height: 50px;
+      background-color: #f0f0f0;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      outline: none;
+      position: relative;
+    }
+
+    .btn.play::before {
+      content: "";
+      border-style: solid;
+      border-width: 10px 0 10px 20px;
+      border-color: transparent transparent transparent #333;
+      margin-left: 5px;
+    }
+
+    .btn.loading::before {
+      content: "";
+      width: 30px;
+      height: 30px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+
+
+
+
+/* Overall page styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000; 
+      color: #ccc; 
+      font-family: Arial, sans-serif;
+    }
+
+    .songs-container {
+      width: 100%;           
+      margin: 0;      
+      padding: 20px;
+      background: #000;       
+      
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;           
+      justify-content: space-between;
+    }
+    
+
+
+    .song-item {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      position: relative;
+      padding: 10px;
+      background: #111;
+      border: 1px solid #550000;
+      transition: transform 0.3s ease-in-out;
+      overflow: visible; 
+      z-index: 1;
+      flex: 0 0 calc(50% - 10px);
+      width: 100%;
+    }
+
+    .song-item:hover {
+      transform: scale(1.02);
+    }
+
+    .thumbnail {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      margin-right: 20px;
+      border: 2px solid #550000;
+    }
+
+
+
+    .coloor {
+      font-size: 1em;
+      margin: 5px 0;
+      color: #ccc;
+    }
+
+    .duration {
+      font-size: 0.9em;
+      margin-top: 5px;
+      color: #999;
+    }
+
+    .button {
+      background: #550000;
+      color: #ccc;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: linear-gradient(to right, #550000, #770000);
+    }
+
+
+    .popup {
+      display: none; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 350px;
+      height: 150px;
+      background: #111; 
+      border: 2px solid #550000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+      transform: translateY(-10px);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      z-index: 1000; 
+    }
+
+    .song-item:hover .popup {
+      display: flex;
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .popup-content {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    .popup-image {
+      width: 50%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-image img {
+      width: 95%;
+      height: auto;
+      border: 2px solid #550000;
+    }
+
+    .popup-info {
+      width: 50%;
+      padding: 10px;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: #ccc;
+    }
+
+    .popup-info h3, .popup-info h4 {
+      margin: 5px 0;
+    }
+
+    .popup-info h3 {
+      font-size: 1.2em;
+    }
+
+    .popup-info h4 {
+      font-size: 1em;
+      color: #ccc;
+    }
+
+    @media (max-width: 768px) {
+      .song-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .thumbnail {
+        margin-bottom: 10px;
+      }
+      .popup {
+        width: 90%;
+        height: auto;
+        position: static;
+        transform: none;
+        opacity: 1;
+        display: none;
+        margin-top: 10px;
+      }
+      .song-item:hover .popup {
+        display: block;
+      }
+    }
+
+
+
+
+
+    .navbar2 {
+        width: 100%;
+        background: linear-gradient(to bottom, #000000 75%, #222222 100%);
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 999;   
+        display: flex;
+        justify-content: center; 
+        padding: 10px 0;
+        z-index: 998;
+    }
+
+    .navbar2 form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 80%; 
+        max-width: 1200px; 
+    }
+
+    .navbar2 .iinput {
+        padding: 8px;
+        border-radius: 25px;
+        width: 100%;
+        background-color: #000000; 
+        color: #ffffff; 
+        border: 1px solid #666666; 
+    }
+
+    .navbar2 .bbuttonpro {
+        cursor: pointer;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 25px; 
+        background-color: #282828; 
+        color: #ffffff;
+        transition: background-color 0.2s ease;
+        white-space: nowrap; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar2 .bbuttonpro svg {
+        width: 20px;
+        height: 20px;
+        stroke: #b0b0b0;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+    }
+
+    .navbar2 .bbuttonpro:hover {
+        background-color: #3f3f3f; 
+    }
+
+
+
+
+
+
+
+
+
+
+
+
   .aligned-form {
     display: flex;
     justify-content: center;
@@ -90,10 +430,10 @@
   }
   .dynamic-black-field {
     background-color: black;
-    color: white; /* Text color */
-    padding: 10px; /* Padding around the text */
-    display: inline-block; /* Make the div size to its content */
-    border-radius: 5px; /* Optional: rounded corners */
+    color: white; 
+    padding: 10px; 
+    display: inline-block;
+    border-radius: 5px; 
   } 
 
   .coloor {
@@ -121,47 +461,46 @@
     padding: 20px;
 }
 
-.song-item {
-    border: 2px solid black;
-    padding: 10px;
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px;
-    box-sizing: border-box;
-}
 
-.thumbnail {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border: 1px solid #000;
-    max-width: 100%;
-    height: auto;
-    image-rendering: auto;
-}
+
 
 .song-info {
-    width: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: space-between; 
+    width: 100%;
 }
 
 .title {
-    margin: 0;
-    font-size: 1.2rem;
-    text-align: center;
+    margin-left: 5px;
+    font-size: 2rem;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
 }
 
 .duration {
     margin: 5px 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* From Uiverse.io by nikk7007 */ 
@@ -222,7 +561,7 @@
 }
 
 /* From Uiverse.io by garerim */ 
-.iinput {
+.iiinput {
   margin: 30px;
   background: none;
   border: none;
@@ -401,12 +740,7 @@
 }
 
 
-.centerr {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+
 </style>
     
 

@@ -188,6 +188,9 @@ def search():
     return render_template('search.html', results=results, thumbnails=thumbnails, zip=zip)
 
 
+
+
+
 @app.route('/next', methods=['GET'])
 @login_required
 def next_song():
@@ -565,7 +568,34 @@ def chatgpt():
     )
 
     suggestion = message.content[0].text
-    return render_template('search.html', response=suggestion)
+    return search_for_ai(suggestion)
+
+
+@app.route('/search', methods=['GET', 'POST'])
+@login_required
+def search_for_ai(query):
+    results = []
+    thumbnails = []
+    if request.method == 'POST':
+        if query:
+            results = ytmusic.search(query, filter="songs")
+            for song in results:
+                videoId = song.get("videoId")
+                if videoId:
+                    video_details = ytmusic.get_song(videoId).get("videoDetails", {})
+                    thumbnail = video_details.get("thumbnail", {}).get("thumbnails", [])
+                    if thumbnail:
+                        thumbnails.append(thumbnail[-1]["url"])
+                    else:
+                        thumbnails.append('')
+                else:
+                    thumbnails.append('')
+    return render_template('search.html', results=results, thumbnails=thumbnails, zip=zip)
+
+
+
+
+
 
 
 
