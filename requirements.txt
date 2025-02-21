@@ -103,7 +103,6 @@ python-socketio==5.11.4
 pyttsx3==2.98
 pytweening==1.2.0
 pytz==2024.2
-pywin32==308
 radios==0.3.2
 requests==2.32.3
 requests-toolbelt==0.9.1
